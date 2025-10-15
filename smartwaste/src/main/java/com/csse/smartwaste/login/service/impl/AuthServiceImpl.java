@@ -3,6 +3,7 @@ package com.csse.smartwaste.login.service.impl;
 import com.csse.smartwaste.common.exception.DuplicateResourceException;
 import com.csse.smartwaste.common.exception.InvalidCredentialsException;
 import com.csse.smartwaste.common.exception.ResourceNotFoundException;
+import com.csse.smartwaste.common.util.PasswordUtil;
 import com.csse.smartwaste.login.dto.SignInRequest;
 import com.csse.smartwaste.login.dto.SignUpRequest;
 import com.csse.smartwaste.login.dto.UserResponse;
@@ -22,14 +23,16 @@ import org.springframework.stereotype.Service;
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
+    private final PasswordUtil passwordUtil;
 
     /**
      * Constructor injection - follows Dependency Injection best practice
      * Preferred over @Autowired field injection
      */
     @Autowired
-    public AuthServiceImpl(UserRepository userRepository) {
+    public AuthServiceImpl(UserRepository userRepository, PasswordUtil passwordUtil) {
         this.userRepository = userRepository;
+        this.passwordUtil = passwordUtil;
     }
 
     /**
@@ -81,7 +84,7 @@ public class AuthServiceImpl implements AuthService {
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
-        user.setPasswordHash(request.getPassword()); // TODO: Add password hashing when needed
+        user.setPasswordHash(passwordUtil.hashPassword(request.getPassword())); // Hash password securely
         user.setRole(request.getRole());
         return user;
     }
@@ -89,11 +92,26 @@ public class AuthServiceImpl implements AuthService {
     /**
      * Helper method to validate password
      * Follows Single Responsibility - dedicated to password validation
-     * Can be extended to use BCrypt or other hashing algorithms
+     * Handles both hashed and plain text passwords for migration compatibility
      */
     private boolean validatePassword(User user, String password) {
-        // Simple comparison for now - can be upgraded to BCrypt
-        return user.getPasswordHash().equals(password);
+        String storedPassword = user.getPasswordHash();
+        
+        // Check if password is already hashed (migrated user)
+        if (passwordUtil.isPasswordHashed(storedPassword)) {
+            return passwordUtil.verifyPassword(password, storedPassword);
+        }
+        
+        // Legacy plain text password (for existing users during migration)
+        boolean isValid = storedPassword.equals(password);
+        
+        // If password is valid and stored as plain text, hash it for security
+        if (isValid) {
+            user.setPasswordHash(passwordUtil.hashPassword(password));
+            userRepository.save(user); // Update with hashed password
+        }
+        
+        return isValid;
     }
 
     /**
