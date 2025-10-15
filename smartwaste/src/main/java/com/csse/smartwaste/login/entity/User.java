@@ -5,11 +5,15 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 
+/**
+ * User Entity - Represents a user in the system
+ * Follows Single Responsibility Principle - only represents user data
+ */
 @Document(collection = "users")
 public class User {
 
     @Id
-    private String userId; // MongoDB _id is usually a String
+    private String userId;
 
     private String name;
     private String email;

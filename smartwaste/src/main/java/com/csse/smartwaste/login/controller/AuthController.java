@@ -7,13 +7,22 @@ import com.csse.smartwaste.login.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * AuthController - Handles authentication REST endpoints
+ * Follows Single Responsibility Principle - only handles HTTP requests/responses
+ * Follows Dependency Inversion Principle - depends on AuthService abstraction
+ */
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
+    private final AuthService authService;
+
     @Autowired
-    private AuthService authService;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
 
     @PostMapping("/signup")
     public UserResponse signUp(@RequestBody SignUpRequest request) {

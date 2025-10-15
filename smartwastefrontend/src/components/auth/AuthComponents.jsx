@@ -36,7 +36,7 @@ export const Button = ({ type = 'button', onClick, children, variant = 'primary'
 };
 
 export const UserTypeSelector = ({ selectedType, onTypeChange }) => {
-  const userTypes = ['resident', 'collector', 'dispatcher', 'admin'];
+  const userTypes = ['resident', 'worker', 'admin'];
 
   return (
     <div>
