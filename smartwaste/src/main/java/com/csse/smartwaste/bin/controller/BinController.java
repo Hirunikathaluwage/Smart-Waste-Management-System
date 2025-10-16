@@ -31,7 +31,6 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/bins")
-@CrossOrigin(origins = "*")
 public class BinController {
 
     private final BinService binService;
@@ -43,6 +42,22 @@ public class BinController {
     @Autowired
     public BinController(BinService binService) {
         this.binService = binService;
+    }
+
+    /**
+     * Health check endpoint
+     * SRP: Single responsibility - only handles health check
+     * 
+     * @return ResponseEntity containing health status
+     */
+    @GetMapping("/health")
+    public ResponseEntity<Map<String, String>> healthCheck() {
+        Map<String, String> response = Map.of(
+            "status", "UP",
+            "service", "Bin Service",
+            "timestamp", java.time.LocalDateTime.now().toString()
+        );
+        return ResponseEntity.ok(response);
     }
 
     /**

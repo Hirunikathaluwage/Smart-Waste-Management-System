@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FeedbackDisplay, ProgressIndicator, SensorDataDisplay, CollectionTable } from '../../components/collection/CollectionComponents';
 import audioFeedbackService from '../../services/AudioFeedbackService';
 import mockIoTSensorService from '../../services/MockIoTSensorService';
+import binService from '../../services/BinService';
 
 // Simple SVG icons to avoid external dependencies - follows SRP for icon management
 const CheckCircleIcon = ({ className }) => (
@@ -83,19 +84,39 @@ const CollectionPage = () => {
   const [manualWeight, setManualWeight] = useState(25);
   const [wasteType, setWasteType] = useState('General');
   const [showSummary, setShowSummary] = useState(false);
+  const [availableBins, setAvailableBins] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Mock bin database - follows DRY principle
-  const mockBins = [
-    { id: 'BIN-001', location: '123 Galle Road, Colombo 03', owner: 'RES-001', status: 'ACTIVE' },
-    { id: 'BIN-002', location: '456 Union Place, Colombo 02', owner: 'RES-002', status: 'ACTIVE' },
-    { id: 'BIN-003', location: '789 Main Street, Colombo 11', owner: 'RES-003', status: 'DAMAGED' },
-    { id: 'BIN-004', location: '321 Marine Drive, Colombo 06', owner: 'RES-004', status: 'ACTIVE' },
-    { id: 'BIN-005', location: '654 Galle Road, Mount Lavinia', owner: 'RES-005', status: 'ACTIVE' },
-    // Additional mock bins for simulation
-    { id: 'BIN-006', location: '100 Independence Square, Colombo 07', owner: 'RES-006', status: 'ACTIVE' },
-    { id: 'BIN-007', location: '200 Marine Drive, Colombo 06', owner: 'RES-007', status: 'ACTIVE' },
-    { id: 'BIN-008', location: '300 Galle Road, Colombo 03', owner: 'RES-008', status: 'ACTIVE' },
-  ];
+  // Load bins from backend on component mount - follows SRP for data loading
+  useEffect(() => {
+    const loadBins = async () => {
+      try {
+        setLoading(true);
+        const bins = await binService.getAllBins();
+        setAvailableBins(bins);
+        setRouteProgress(prev => ({ ...prev, total: bins.length }));
+        setError(null);
+      } catch (err) {
+        console.error('Failed to load bins:', err);
+        setError('Failed to load bins from server');
+        // Fallback to mock data if backend is unavailable
+        const mockBins = [
+          { binId: 'BIN-001', address: '123 Galle Road, Colombo 03', ownerId: 'RES-001', status: 'ACTIVE' },
+          { binId: 'BIN-002', address: '456 Union Place, Colombo 02', ownerId: 'RES-002', status: 'ACTIVE' },
+          { binId: 'BIN-003', address: '789 Main Street, Colombo 11', ownerId: 'RES-003', status: 'DAMAGED' },
+          { binId: 'BIN-004', address: '321 Marine Drive, Colombo 06', ownerId: 'RES-004', status: 'ACTIVE' },
+          { binId: 'BIN-005', address: '654 Galle Road, Mount Lavinia', ownerId: 'RES-005', status: 'ACTIVE' },
+        ];
+        setAvailableBins(mockBins);
+        setRouteProgress(prev => ({ ...prev, total: mockBins.length }));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadBins();
+  }, []);
 
   // Timer effect - follows SRP for time tracking
   useEffect(() => {
@@ -129,7 +150,7 @@ const CollectionPage = () => {
       return;
     }
 
-    const bin = mockBins.find(b => b.id === binId.toUpperCase());
+    const bin = availableBins.find(b => b.binId === binId.toUpperCase());
     
     if (!bin) {
       setFeedback({
@@ -179,7 +200,7 @@ const CollectionPage = () => {
     
     const collection = {
       binId: binId.toUpperCase(),
-      location: bin.location,
+      location: bin.address,
       timestamp: new Date().toLocaleString(),
       weight: sensorData.weight,
       fillLevel: sensorData.fillLevel,
@@ -203,10 +224,10 @@ const CollectionPage = () => {
 
   // Override collection handler - follows SRP for override logic
   const handleOverrideCollection = (bin) => {
-    const sensorData = mockIoTSensorService.generateSensorData(bin.id);
+    const sensorData = mockIoTSensorService.generateSensorData(bin.binId);
     const collection = {
-      binId: bin.id,
-      location: bin.location,
+      binId: bin.binId,
+      location: bin.address,
       timestamp: new Date().toLocaleString(),
       weight: sensorData.weight,
       fillLevel: sensorData.fillLevel,
@@ -306,6 +327,28 @@ const CollectionPage = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Loading State */}
+        {loading && (
+          <div className="bg-white rounded-lg shadow-sm p-6 text-center mb-6">
+            <div className="flex items-center justify-center space-x-2">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
+              <span className="text-gray-600">Loading bins from server...</span>
+            </div>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && !loading && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center space-x-2">
+              <XCircleIcon className="w-5 h-5 text-red-600" />
+              <span className="text-red-800 font-medium">Connection Error</span>
+            </div>
+            <p className="text-red-700 mt-1">{error}</p>
+            <p className="text-red-600 text-sm mt-2">Using fallback data for demonstration.</p>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* Main Collection Area */}
@@ -516,9 +559,9 @@ const CollectionPage = () => {
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Available Bins</h2>
               <div className="space-y-2">
-                {mockBins.map((bin) => (
-                  <div key={bin.id} className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                    <span className="text-sm font-medium">{bin.id}</span>
+                {availableBins.map((bin) => (
+                  <div key={bin.binId} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                    <span className="text-sm font-medium">{bin.binId}</span>
                     <span className={`text-xs px-2 py-1 rounded ${
                       bin.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                     }`}>
