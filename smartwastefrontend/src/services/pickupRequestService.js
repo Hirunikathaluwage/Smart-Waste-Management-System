@@ -57,6 +57,17 @@ export const pickupRequestService = {
     }
   },
 
+  // Delete pickup request
+  deletePickupRequest: async (requestId) => {
+    try {
+      const response = await API.delete(`/pickup-requests/${requestId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting pickup request:', error);
+      throw error;
+    }
+  },
+
   // Process payment for pickup request
   processPayment: async (requestId, paymentData) => {
     try {

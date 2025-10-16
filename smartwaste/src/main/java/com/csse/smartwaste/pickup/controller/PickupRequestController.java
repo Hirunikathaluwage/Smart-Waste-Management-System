@@ -208,6 +208,21 @@ public class PickupRequestController {
     }
 
     /**
+     * Delete pickup request
+     */
+    @DeleteMapping("/{requestId}")
+    public ResponseEntity<Void> deletePickupRequest(@PathVariable String requestId) {
+        try {
+            pickupRequestService.deletePickupRequest(requestId);
+            return ResponseEntity.ok().build();
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+
+    /**
      * Get pickup request statistics (Admin only)
      */
     @GetMapping("/stats")

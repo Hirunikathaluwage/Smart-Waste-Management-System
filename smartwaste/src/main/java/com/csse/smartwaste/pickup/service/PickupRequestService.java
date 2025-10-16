@@ -223,6 +223,21 @@ public class PickupRequestService {
     }
 
     /**
+     * Delete pickup request
+     */
+    public void deletePickupRequest(String requestId) {
+        PickupRequest pickupRequest = pickupRequestRepository.findById(requestId)
+                .orElseThrow(() -> new ResourceNotFoundException("Pickup request not found with ID: " + requestId));
+
+        // Only allow deletion of draft or pending requests
+        if (pickupRequest.getStatus() != PickupStatus.DRAFT && pickupRequest.getStatus() != PickupStatus.PENDING) {
+            throw new IllegalStateException("Cannot delete pickup request with status: " + pickupRequest.getStatus());
+        }
+
+        pickupRequestRepository.delete(pickupRequest);
+    }
+
+    /**
      * Process payment for pickup request
      */
     public PickupRequestResponseDTO processPayment(String requestId, PaymentRequestDTO paymentDTO) {
