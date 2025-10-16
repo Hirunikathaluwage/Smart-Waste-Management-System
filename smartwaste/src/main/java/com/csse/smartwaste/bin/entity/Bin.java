@@ -93,9 +93,16 @@ public class Bin {
      * Bin Status Enum
      * SRP: Single responsibility - only manages bin status values
      * OCP: Open for extension - new statuses can be added without modifying existing code
+     * 
+     * Status Definitions:
+     * - ACTIVE: Bin is ready for collection
+     * - COLLECTED: Bin has been collected today
+     * - DAMAGED: Bin needs repair
+     * - LOST: Bin is missing
+     * - MAINTENANCE: Bin is under maintenance
      */
     public enum BinStatus {
-        ACTIVE, DAMAGED, LOST, MAINTENANCE
+        ACTIVE, COLLECTED, DAMAGED, LOST, MAINTENANCE
     }
 
     /**
