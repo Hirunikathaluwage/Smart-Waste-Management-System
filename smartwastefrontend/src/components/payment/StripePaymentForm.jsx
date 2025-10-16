@@ -188,7 +188,6 @@ const PaymentForm = ({ amount, onPaymentSuccess, onPaymentError, isLoading = fal
       }
 
       if (paymentIntent.status === 'succeeded') {
-        console.log('Payment succeeded! Setting paymentSuccess to true');
         setPaymentSuccess(true);
         const paymentResult = {
           paymentMethodId: paymentMethod.id,
@@ -198,16 +197,13 @@ const PaymentForm = ({ amount, onPaymentSuccess, onPaymentError, isLoading = fal
           status: 'succeeded'
         };
         
-        console.log('Payment result:', paymentResult);
         onPaymentSuccess(paymentResult);
         
         // Generate and download invoice
-        console.log('Generating invoice...');
         generateInvoice(paymentResult);
         
         // Don't reset the form - let the parent component handle the state
       } else {
-        console.log('Payment status:', paymentIntent.status);
         throw new Error('Payment was not successful');
       }
 
@@ -231,7 +227,6 @@ const PaymentForm = ({ amount, onPaymentSuccess, onPaymentError, isLoading = fal
 
   return (
     <div className="stripe-payment-form" onClick={(e) => e.stopPropagation()}>
-      {console.log('Rendering payment form. paymentSuccess:', paymentSuccess)}
       {paymentSuccess ? (
         <div className="space-y-4">
           <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
@@ -263,7 +258,7 @@ const PaymentForm = ({ amount, onPaymentSuccess, onPaymentError, isLoading = fal
           </div>
           
           {/* Download Invoice Button */}
-          <div className="flex justify-center space-x-4">
+          <div className="flex justify-center">
             <button
               type="button"
               onClick={() => generateInvoice({
@@ -279,24 +274,6 @@ const PaymentForm = ({ amount, onPaymentSuccess, onPaymentError, isLoading = fal
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               <span>Download Invoice PDF</span>
-            </button>
-            
-            {/* Test Button for Debugging */}
-            <button
-              type="button"
-              onClick={() => {
-                console.log('Test button clicked - generating PDF');
-                generateInvoice({
-                  paymentMethodId: 'pm_test_debug',
-                  paymentIntentId: 'pi_test_debug_' + Date.now(),
-                  amount: amount,
-                  currency: 'usd',
-                  status: 'succeeded'
-                });
-              }}
-              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
-            >
-              Test PDF
             </button>
           </div>
         </div>
@@ -340,18 +317,6 @@ const PaymentForm = ({ amount, onPaymentSuccess, onPaymentError, isLoading = fal
             ) : (
               `Pay $${amount.toFixed(2)}`
             )}
-          </button>
-          
-          {/* Debug Button - Remove in production */}
-          <button
-            type="button"
-            onClick={() => {
-              console.log('Debug: Manually setting payment success');
-              setPaymentSuccess(true);
-            }}
-            className="w-full py-2 px-4 rounded-lg font-medium bg-yellow-500 text-white hover:bg-yellow-600 mt-2"
-          >
-            🐛 Debug: Simulate Payment Success
           </button>
         </form>
       )}
