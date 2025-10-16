@@ -295,4 +295,18 @@ public class MigrationController {
             return ResponseEntity.internalServerError().body(response);
         }
     }
+
+    @PostMapping("/migrate-bin-status-for-collection")
+    public ResponseEntity<Map<String, Object>> migrateBinStatusForCollection() {
+        try {
+            Map<String, Object> result = binMigrationService.migrateBinStatusForCollection();
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("error", e.getMessage());
+            response.put("message", "Bin status migration failed");
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
 }

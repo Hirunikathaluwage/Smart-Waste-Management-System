@@ -445,4 +445,91 @@ public class BinMigrationService {
             default -> "Unknown Address";
         };
     }
+
+    /**
+     * Migrate existing bins to support COLLECTED status
+     * SRP: Single responsibility - only handles bin status migration
+     * OCP: Open for extension - adds new functionality without modifying existing code
+     * 
+     * This method ensures all existing bins in the database are compatible with the new COLLECTED status
+     * by updating any bins that might have been collected but don't have the proper status.
+     * 
+     * @return Map containing migration results
+     */
+    public Map<String, Object> migrateBinStatusForCollection() {
+        try {
+            // Find all bins that are currently ACTIVE (should be the default state)
+            org.springframework.data.mongodb.core.query.Query query = new org.springframework.data.mongodb.core.query.Query(
+                    org.springframework.data.mongodb.core.query.Criteria.where("status").is("ACTIVE"));
+            
+            List<Bin> activeBins = mongoTemplate.find(query, Bin.class);
+            
+            StringBuilder results = new StringBuilder();
+            int processedCount = 0;
+            int updatedCount = 0;
+            
+            results.append("🔄 Starting bin status migration for collection support...\n");
+            
+            for (Bin bin : activeBins) {
+                try {
+                    processedCount++;
+                    
+                    // Check if bin was collected today (has collection records)
+                    org.springframework.data.mongodb.core.query.Query collectionQuery = new org.springframework.data.mongodb.core.query.Query(
+                            org.springframework.data.mongodb.core.query.Criteria.where("binId").is(bin.getBinId())
+                                .and("collectionDate").gte(java.time.LocalDate.now().atStartOfDay())
+                                .and("status").in("COLLECTED", "OVERRIDE"));
+                    
+                    List<Object> collectionRecords = mongoTemplate.find(collectionQuery, Object.class, "collection_records");
+                    
+                    if (!collectionRecords.isEmpty()) {
+                        // Bin was collected today, update status to COLLECTED
+                        org.springframework.data.mongodb.core.query.Update update = new org.springframework.data.mongodb.core.query.Update()
+                                .set("status", "COLLECTED")
+                                .set("updatedAt", java.time.LocalDateTime.now());
+                        
+                        UpdateResult updateResult = mongoTemplate.updateFirst(
+                                new org.springframework.data.mongodb.core.query.Query(
+                                        org.springframework.data.mongodb.core.query.Criteria.where("binId").is(bin.getBinId())),
+                                update, Bin.class);
+                        
+                        if (updateResult.getModifiedCount() > 0) {
+                            updatedCount++;
+                            results.append("✅ Updated bin ").append(bin.getBinId())
+                                   .append(" status to COLLECTED (found ").append(collectionRecords.size())
+                                   .append(" collection records)\n");
+                        }
+                    } else {
+                        // Bin was not collected today, ensure it's ACTIVE
+                        results.append("ℹ️ Bin ").append(bin.getBinId())
+                               .append(" remains ACTIVE (no collection records found)\n");
+                    }
+                    
+                } catch (Exception e) {
+                    results.append("❌ Error processing bin ").append(bin.getBinId())
+                           .append(": ").append(e.getMessage()).append("\n");
+                }
+            }
+            
+            results.append("\n📊 Migration Summary:\n");
+            results.append("- Total bins processed: ").append(processedCount).append("\n");
+            results.append("- Bins updated to COLLECTED: ").append(updatedCount).append("\n");
+            results.append("- Bins remaining ACTIVE: ").append(processedCount - updatedCount).append("\n");
+            
+            return Map.of(
+                "success", true,
+                "processedCount", processedCount,
+                "updatedCount", updatedCount,
+                "message", "Bin status migration completed successfully",
+                "results", results.toString()
+            );
+            
+        } catch (Exception e) {
+            return Map.of(
+                "success", false,
+                "error", e.getMessage(),
+                "message", "Failed to migrate bin status for collection support"
+            );
+        }
+    }
 }

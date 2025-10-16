@@ -31,6 +31,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/bins")
+@CrossOrigin(origins = "*")
 public class BinController {
 
     private final BinService binService;

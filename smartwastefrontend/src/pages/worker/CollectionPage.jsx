@@ -3,6 +3,7 @@ import { FeedbackDisplay, ProgressIndicator, SensorDataDisplay, CollectionTable 
 import audioFeedbackService from '../../services/AudioFeedbackService';
 import mockIoTSensorService from '../../services/MockIoTSensorService';
 import binService from '../../services/BinService';
+import collectionService from '../../services/CollectionService';
 
 // Simple SVG icons to avoid external dependencies - follows SRP for icon management
 const CheckCircleIcon = ({ className }) => (
@@ -87,19 +88,96 @@ const CollectionPage = () => {
   const [availableBins, setAvailableBins] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [workerId] = useState('WORKER-001'); // Mock worker ID for demo
 
-  // Load bins from backend on component mount - follows SRP for data loading
+  /**
+   * Helper function to get bin status styling - follows SRP for status display logic
+   * @param {string} status - The bin status
+   * @returns {object} - CSS classes for status display
+   */
+  const getBinStatusStyle = (status) => {
+    switch (status) {
+      case 'ACTIVE':
+        return {
+          bg: 'bg-green-100',
+          text: 'text-green-800',
+          icon: '🟢'
+        };
+      case 'COLLECTED':
+        return {
+          bg: 'bg-blue-100',
+          text: 'text-blue-800',
+          icon: '✅'
+        };
+      case 'DAMAGED':
+        return {
+          bg: 'bg-red-100',
+          text: 'text-red-800',
+          icon: '🔴'
+        };
+      case 'MAINTENANCE':
+        return {
+          bg: 'bg-yellow-100',
+          text: 'text-yellow-800',
+          icon: '⚠️'
+        };
+      case 'LOST':
+        return {
+          bg: 'bg-gray-100',
+          text: 'text-gray-800',
+          icon: '❓'
+        };
+      default:
+        return {
+          bg: 'bg-gray-100',
+          text: 'text-gray-800',
+          icon: '❓'
+        };
+    }
+  };
+
+  /**
+   * Refresh bin data from backend - follows SRP for data refresh logic
+   * Updates bin statuses to reflect current state after collection
+   */
+  const refreshBinData = async () => {
+    try {
+      const bins = await binService.getAllBins();
+      setAvailableBins(bins);
+      setRouteProgress(prev => ({ ...prev, total: bins.length }));
+    } catch (err) {
+      console.error('Failed to refresh bin data:', err);
+      // Don't show error to user for refresh failures
+    }
+  };
+
+  // Load bins and collection data from backend on component mount - follows SRP for data loading
   useEffect(() => {
-    const loadBins = async () => {
+    const loadData = async () => {
       try {
         setLoading(true);
+        
+        // Load bins
         const bins = await binService.getAllBins();
         setAvailableBins(bins);
         setRouteProgress(prev => ({ ...prev, total: bins.length }));
+        
+        // Load today's collection records
+        const todayCollections = await collectionService.getTodayCollectionRecords(workerId);
+        setCollectedBins(todayCollections);
+        
+        // Calculate total weight from saved collections
+        const totalWeightFromSaved = todayCollections.reduce((sum, record) => sum + (record.weight || 0), 0);
+        setTotalWeight(totalWeightFromSaved);
+        
+        // Update route progress
+        setRouteProgress(prev => ({ ...prev, collected: todayCollections.length }));
+        
         setError(null);
       } catch (err) {
-        console.error('Failed to load bins:', err);
-        setError('Failed to load bins from server');
+        console.error('Failed to load data:', err);
+        setError('Failed to load data from server');
+        
         // Fallback to mock data if backend is unavailable
         const mockBins = [
           { binId: 'BIN-001', address: '123 Galle Road, Colombo 03', ownerId: 'RES-001', status: 'ACTIVE' },
@@ -115,8 +193,8 @@ const CollectionPage = () => {
       }
     };
 
-    loadBins();
-  }, []);
+    loadData();
+  }, [workerId]);
 
   // Timer effect - follows SRP for time tracking
   useEffect(() => {
@@ -139,7 +217,7 @@ const CollectionPage = () => {
 
 
   // Bin scanning handler - follows SRP for scan processing
-  const handleBinScan = () => {
+  const handleBinScan = async () => {
     if (!binId.trim()) {
       setFeedback({
         type: 'error',
@@ -166,19 +244,37 @@ const CollectionPage = () => {
       return;
     }
 
-    // Check for duplicate scan
-    const alreadyCollected = collectedBins.find(cb => cb.binId === binId.toUpperCase());
-    if (alreadyCollected) {
-      setFeedback({
-        type: 'warning',
-        message: `This bin was already collected today at ${alreadyCollected.timestamp}`,
-        options: [
-          { text: 'Cancel', type: 'secondary', onClick: () => setBinId('') },
-          { text: 'Override with Reason', type: 'primary', onClick: () => handleOverrideCollection(bin) }
-        ]
-      });
-      playFeedbackSound('warning');
-      return;
+    // Check for duplicate scan using backend service
+    try {
+      const alreadyCollectedToday = await collectionService.isBinAlreadyCollectedToday(binId.toUpperCase());
+      if (alreadyCollectedToday) {
+        setFeedback({
+          type: 'warning',
+          message: `This bin was already collected today`,
+          options: [
+            { text: 'Cancel', type: 'secondary', onClick: () => setBinId('') },
+            { text: 'Override with Reason', type: 'primary', onClick: () => handleOverrideCollection(bin) }
+          ]
+        });
+        playFeedbackSound('warning');
+        return;
+      }
+    } catch (error) {
+      console.error('Failed to check duplicate collection:', error);
+      // Fallback to local check
+      const alreadyCollected = collectedBins.find(cb => cb.binId === binId.toUpperCase());
+      if (alreadyCollected) {
+        setFeedback({
+          type: 'warning',
+          message: `This bin was already collected today at ${alreadyCollected.timestamp}`,
+          options: [
+            { text: 'Cancel', type: 'secondary', onClick: () => setBinId('') },
+            { text: 'Override with Reason', type: 'primary', onClick: () => handleOverrideCollection(bin) }
+          ]
+        });
+        playFeedbackSound('warning');
+        return;
+      }
     }
 
     // Check for sensor failure (10% chance)
@@ -198,28 +294,83 @@ const CollectionPage = () => {
     const sensorData = mockIoTSensorService.generateSensorData(binId.toUpperCase());
     setSensorData(sensorData);
     
-    const collection = {
+    // Prepare collection data for backend
+    const collectionData = {
       binId: binId.toUpperCase(),
-      location: bin.address,
-      timestamp: new Date().toLocaleString(),
+      workerId: workerId,
+      binLocation: bin.address,
+      binOwner: bin.ownerId,
       weight: sensorData.weight,
       fillLevel: sensorData.fillLevel,
-      status: 'Collected',
-      reason: null
+      wasteType: sensorData.wasteType,
+      status: 'COLLECTED',
+      sensorData: {
+        temperature: sensorData.temperature,
+        batteryLevel: sensorData.batteryLevel,
+        signalStrength: sensorData.signalStrength
+      }
     };
 
-    setCollectedBins(prev => [...prev, collection]);
-    setTotalWeight(prev => prev + sensorData.weight);
-    setRouteProgress(prev => ({ ...prev, collected: prev.collected + 1 }));
-    
-    setFeedback({
-      type: 'success',
-      message: '✓ Collection Recorded Successfully',
-      options: []
-    });
-    
-    playFeedbackSound('success');
-    setBinId('');
+    try {
+      // Save to backend
+      const savedRecord = await collectionService.createCollectionRecord(collectionData);
+      
+      // Update local state
+      const localCollection = {
+        binId: binId.toUpperCase(),
+        location: bin.address,
+        timestamp: new Date().toLocaleString(),
+        weight: sensorData.weight,
+        fillLevel: sensorData.fillLevel,
+        status: 'Collected',
+        reason: null
+      };
+
+      setCollectedBins(prev => [...prev, localCollection]);
+      setTotalWeight(prev => prev + sensorData.weight);
+      setRouteProgress(prev => ({ ...prev, collected: prev.collected + 1 }));
+      
+      setFeedback({
+        type: 'success',
+        message: '✓ Collection Recorded and Saved Successfully',
+        options: []
+      });
+      
+      playFeedbackSound('success');
+      setBinId('');
+      
+      // Refresh bin data to show updated status
+      await refreshBinData();
+    } catch (error) {
+      console.error('Failed to save collection:', error);
+      
+      // Still update local state for demo purposes
+      const localCollection = {
+        binId: binId.toUpperCase(),
+        location: bin.address,
+        timestamp: new Date().toLocaleString(),
+        weight: sensorData.weight,
+        fillLevel: sensorData.fillLevel,
+        status: 'Collected',
+        reason: null
+      };
+
+      setCollectedBins(prev => [...prev, localCollection]);
+      setTotalWeight(prev => prev + sensorData.weight);
+      setRouteProgress(prev => ({ ...prev, collected: prev.collected + 1 }));
+      
+      setFeedback({
+        type: 'success',
+        message: '✓ Collection Recorded (Saved Locally)',
+        options: []
+      });
+      
+      playFeedbackSound('success');
+      setBinId('');
+      
+      // Try to refresh bin data even in fallback case
+      await refreshBinData();
+    }
   };
 
   // Override collection handler - follows SRP for override logic
@@ -555,20 +706,44 @@ const CollectionPage = () => {
               </div>
             </div>
 
-            {/* Mock Bin Database Info */}
+            {/* Available Bins Status Display */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Available Bins</h2>
               <div className="space-y-2">
-                {availableBins.map((bin) => (
-                  <div key={bin.binId} className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                    <span className="text-sm font-medium">{bin.binId}</span>
-                    <span className={`text-xs px-2 py-1 rounded ${
-                      bin.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
-                      {bin.status}
-                    </span>
+                {availableBins.map((bin) => {
+                  const statusStyle = getBinStatusStyle(bin.status);
+                  return (
+                    <div key={bin.binId} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm font-medium">{bin.binId}</span>
+                        <span className="text-xs">{statusStyle.icon}</span>
+                      </div>
+                      <span className={`text-xs px-2 py-1 rounded ${statusStyle.bg} ${statusStyle.text}`}>
+                        {bin.status}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="text-xs text-gray-600 space-y-1">
+                  <div className="flex items-center space-x-2">
+                    <span>🟢</span>
+                    <span>ACTIVE - Ready for collection</span>
                   </div>
-                ))}
+                  <div className="flex items-center space-x-2">
+                    <span>✅</span>
+                    <span>COLLECTED - Already collected today</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span>🔴</span>
+                    <span>DAMAGED - Needs repair</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span>⚠️</span>
+                    <span>MAINTENANCE - Under maintenance</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
