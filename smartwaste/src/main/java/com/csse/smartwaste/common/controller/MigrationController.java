@@ -15,7 +15,6 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/migration")
-@CrossOrigin(origins = "http://localhost:5173")
 public class MigrationController {
     
     private final PasswordMigrationUtil migrationUtil;

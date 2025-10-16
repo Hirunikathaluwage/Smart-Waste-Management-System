@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
  * Follows Single Responsibility Principle - only handles HTTP requests/responses
  * Follows Dependency Inversion Principle - depends on AuthService abstraction
  */
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {

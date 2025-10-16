@@ -17,7 +17,6 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/worker")
-@CrossOrigin(origins = "http://localhost:5173")
 public class WorkerController {
     
     private final UserValidationUtil userValidationUtil;
