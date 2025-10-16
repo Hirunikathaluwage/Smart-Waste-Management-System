@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import DashboardLayout from '../../components/dashboard/AdminDashboardLayout';
 import DashboardCard from '../../components/dashboard/DashboardCard';
@@ -9,6 +10,7 @@ import { BarChart3, Package, Truck, Trash2, CheckSquare, Users } from 'lucide-re
 
 const AdminDashboard = () => {
   const authContext = useAuth();
+  const navigate = useNavigate();
   const [activeNav, setActiveNav] = useState('dashboard');
 
   useEffect(() => {
@@ -135,10 +137,15 @@ const AdminDashboard = () => {
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <ActionButton 
+            label="Pickup Management" 
+            icon="📦" 
+            colorScheme="indigo" 
+            onClick={() => navigate('/admin/pickup-management')}
+          />
           <ActionButton label="Generate Report" icon="📈" colorScheme="indigo" />
           <ActionButton label="Manage Users" icon="👤" colorScheme="indigo" />
           <ActionButton label="View Analytics" icon="📊" colorScheme="indigo" />
-          <ActionButton label="System Settings" icon="⚙️" colorScheme="indigo" />
         </div>
       </div>
 

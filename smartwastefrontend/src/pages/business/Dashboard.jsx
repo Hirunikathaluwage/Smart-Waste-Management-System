@@ -1,21 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import DashboardLayout from '../../components/dashboard/ResidentDashboardLayout';
+import DashboardLayout from '../../components/dashboard/BusinessDashboardLayout';
 import DashboardCard from '../../components/dashboard/DashboardCard';
 import ActionButton from '../../components/dashboard/ActionButton';
 import ActivityItem from '../../components/dashboard/ActivityItem';
 import PickupRequestList from '../../components/pickup/PickupRequestList';
 import pickupRequestService from '../../services/pickupRequestService';
-import { Calendar, Trash2, CreditCard, Award, MessageCircle, Clock, CheckCircle, AlertCircle, MapPin } from 'lucide-react';
+import { Calendar, Trash2, CreditCard, Award, MessageCircle, Building2, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 
 /**
- * ResidentDashboard Component
- * Follows Single Responsibility - only handles resident dashboard view
+ * BusinessDashboard Component
+ * Follows Single Responsibility - only handles business dashboard view
  * Follows DRY - uses shared components
  * Follows Open/Closed - easy to extend with new features
  */
-const ResidentDashboard = () => {
+const BusinessDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [activeNav, setActiveNav] = useState('overview');
@@ -64,7 +64,7 @@ const ResidentDashboard = () => {
     fetchData();
   }, [user?.userId]);
 
-  // Define navigation items for resident
+  // Define navigation items for business
   const navItems = [
     { id: 'overview', label: 'Overview', icon: Calendar },
     { id: 'requests', label: 'My Requests', icon: Trash2 },
@@ -155,19 +155,19 @@ const ResidentDashboard = () => {
                 <ActionButton 
                   label="Request Pickup" 
                   icon="📞" 
-                  colorScheme="emerald" 
-                  onClick={() => navigate('/pickup-request')}
+                  colorScheme="blue" 
+                  onClick={() => navigate('/business/pickup-request')}
                 />
                 <ActionButton 
                   label="View All Requests" 
                   icon="📊" 
-                  colorScheme="emerald"
+                  colorScheme="blue"
                   onClick={() => setActiveNav('requests')}
                 />
                 <ActionButton 
                   label="Contact Support" 
                   icon="💬" 
-                  colorScheme="emerald"
+                  colorScheme="blue"
                   onClick={() => setActiveNav('support')}
                 />
               </div>
@@ -193,10 +193,10 @@ const ResidentDashboard = () => {
                   <Trash2 className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                   <p>No pickup requests yet</p>
                   <button 
-                    onClick={() => navigate('/pickup-request')}
+                    onClick={() => navigate('/business/pickup-request')}
                     className="mt-2 text-blue-600 hover:text-blue-800 font-medium"
                   >
-                    Create your first request
+                    Create your first business request
                   </button>
                 </div>
               ) : (
@@ -244,16 +244,20 @@ const ResidentDashboard = () => {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Collection Schedule</h2>
             <div className="text-center py-12 text-gray-500">
               <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-              <p className="text-lg font-medium mb-2">Collection Schedule</p>
-              <p>View your upcoming waste collection dates and times</p>
+              <p className="text-lg font-medium mb-2">Business Collection Schedule</p>
+              <p>View your upcoming commercial waste collection dates and times</p>
               <div className="mt-6 space-y-2">
                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                   <span className="font-medium">Regular Collection</span>
-                  <span className="text-sm text-gray-600">Every Tuesday & Friday</span>
+                  <span className="text-sm text-gray-600">Every Monday, Wednesday & Friday</span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                   <span className="font-medium">Next Collection</span>
-                  <span className="text-sm text-gray-600">Tuesday, Oct 22, 2024</span>
+                  <span className="text-sm text-gray-600">Monday, Oct 21, 2024</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span className="font-medium">Business Hours</span>
+                  <span className="text-sm text-gray-600">8:00 AM - 6:00 PM</span>
                 </div>
               </div>
             </div>
@@ -266,8 +270,8 @@ const ResidentDashboard = () => {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Payment History</h2>
             <div className="text-center py-12 text-gray-500">
               <CreditCard className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-              <p className="text-lg font-medium mb-2">Payment History</p>
-              <p>View your payment transactions and billing history</p>
+              <p className="text-lg font-medium mb-2">Business Payment History</p>
+              <p>View your commercial payment transactions and billing history</p>
               <div className="mt-6 space-y-2">
                 {pickupRequests
                   .filter(req => req.paymentStatus === 'COMPLETED')
@@ -295,16 +299,20 @@ const ResidentDashboard = () => {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Eco Rewards</h2>
             <div className="text-center py-12 text-gray-500">
               <Award className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-              <p className="text-lg font-medium mb-2">Eco Rewards Program</p>
-              <p>Earn points for sustainable waste management practices</p>
+              <p className="text-lg font-medium mb-2">Business Eco Rewards Program</p>
+              <p>Earn points for sustainable commercial waste management practices</p>
               <div className="mt-6 space-y-2">
                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                   <span className="font-medium">Current Points</span>
-                  <span className="text-lg font-semibold text-green-600">250 points</span>
+                  <span className="text-lg font-semibold text-green-600">500 points</span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                   <span className="font-medium">Points Earned This Month</span>
-                  <span className="text-sm text-gray-600">50 points</span>
+                  <span className="text-sm text-gray-600">150 points</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span className="font-medium">Business Tier</span>
+                  <span className="text-sm text-gray-600">Gold Partner</span>
                 </div>
               </div>
             </div>
@@ -314,29 +322,29 @@ const ResidentDashboard = () => {
       case 'support':
         return (
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Support</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Business Support</h2>
             <div className="text-center py-12 text-gray-500">
               <MessageCircle className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-              <p className="text-lg font-medium mb-2">Need Help?</p>
-              <p>Contact our support team for assistance</p>
+              <p className="text-lg font-medium mb-2">Need Business Support?</p>
+              <p>Contact our dedicated business support team for commercial assistance</p>
               <div className="mt-6 space-y-4">
                 <ActionButton 
-                  label="Email Support" 
+                  label="Email Business Support" 
                   icon="📧" 
-                  colorScheme="emerald"
-                  onClick={() => window.open('mailto:support@smartwaste.com')}
+                  colorScheme="blue"
+                  onClick={() => window.open('mailto:business@smartwaste.com')}
                 />
                 <ActionButton 
-                  label="Call Support" 
+                  label="Call Business Line" 
                   icon="📞" 
-                  colorScheme="emerald"
-                  onClick={() => window.open('tel:+1234567890')}
+                  colorScheme="blue"
+                  onClick={() => window.open('tel:+1234567891')}
                 />
                 <ActionButton 
-                  label="Live Chat" 
-                  icon="💬" 
-                  colorScheme="emerald"
-                  onClick={() => alert('Live chat feature coming soon!')}
+                  label="Schedule Consultation" 
+                  icon="📅" 
+                  colorScheme="blue"
+                  onClick={() => alert('Business consultation scheduling coming soon!')}
                 />
               </div>
             </div>
@@ -353,15 +361,16 @@ const ResidentDashboard = () => {
       navItems={navItems}
       activeNav={activeNav}
       onNavClick={setActiveNav}
-      logo="Resident"
+      logo="Business"
       user={user}
       onLogout={handleLogout}
-      pageTitle="Resident Dashboard"
-      pageSubtitle="Manage your waste collection and account"
+      pageTitle="Business Dashboard"
+      pageSubtitle="Manage your commercial waste collection and account"
     >
       {renderContent()}
     </DashboardLayout>
   );
 };
 
-export default ResidentDashboard;
+export default BusinessDashboard;
+
