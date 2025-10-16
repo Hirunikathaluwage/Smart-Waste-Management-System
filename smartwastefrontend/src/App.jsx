@@ -10,6 +10,7 @@ import ResidentDashboard from './pages/resident/Dashboard';
 import WorkerDashboard from './pages/worker/Dashboard';
 import AdminDashboard from './pages/admin/Dashboard';
 import BusinessDashboard from './pages/business/Dashboard';
+import BusinessPickupRequestPage from './pages/business/PickupRequestPage';
 import PickupRequestPage from './pages/pickup/PickupRequestPage';
 import AdminPickupDashboard from './components/admin/AdminPickupDashboard';
 import { ROLES } from './constants/roles';
@@ -95,8 +96,16 @@ function App() {
                         <Route
                             path="/pickup-request"
                             element={
-                                <ProtectedRoute allowedRoles={[ROLES.RESIDENT, ROLES.BUSINESS]}>
+                                <ProtectedRoute allowedRoles={[ROLES.RESIDENT]}>
                                     <PickupRequestPage />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/business/pickup-request"
+                            element={
+                                <ProtectedRoute allowedRoles={[ROLES.BUSINESS]}>
+                                    <BusinessPickupRequestPage />
                                 </ProtectedRoute>
                             }
                         />
