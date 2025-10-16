@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import DashboardLayout from '../../components/dashboard/AdminDashboardLayout';
-import { BarChart3, Package, Truck, Trash2, CheckSquare, Users, Check, X } from 'lucide-react';
+import { BarChart3, Package, Truck, Trash2, CheckSquare, LineChart, Check, X } from 'lucide-react';
 
 /**
  * BinRequestsManagement Component
@@ -24,7 +24,7 @@ const BinRequestsManagement = () => {
     { id: 'routes', label: 'Route Changes', icon: Truck },
     { id: 'bins', label: 'Bin Requests', icon: Trash2 },
     { id: 'approvals', label: 'Approvals', icon: CheckSquare },
-    { id: 'users', label: 'Manage Users', icon: Users },
+     { id: 'analytics', label: 'Analytics', icon: LineChart },
   ];
 
   // Tab configuration
@@ -118,8 +118,8 @@ const BinRequestsManagement = () => {
       // navigate('/admin/routes');
     } else if (navId === 'approvals') {
       // navigate('/admin/approvals');
-    } else if (navId === 'users') {
-      // navigate('/admin/users');
+    } else if (navId === 'analytics') {
+      // navigate('/admin/analytics');
     }
   };
 

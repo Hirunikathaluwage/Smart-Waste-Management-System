@@ -11,6 +11,10 @@ import WorkerDashboard from './pages/worker/Dashboard';
 import AdminDashboard from './pages/admin/Dashboard';
 import BinRequestsManagement from './pages/admin/BinRequestsManagement';
 import { ROLES } from './constants/roles';
+import WasteCollectionPerformance from './pages/admin/WasteCollectionPerformance';
+import RecyclingTrends from './pages/admin/RecyclingTrends';
+import FinancialSummary from './pages/admin/FinancialSummary';
+import EnvironmentalImpact from './pages/admin/EnvironmentalImpact';
 
 /**
  * Layout wrapper component that conditionally renders Header and Footer
@@ -89,6 +93,39 @@ function App() {
                                 </ProtectedRoute>
                             }
                         />
+
+                            <Route
+                                path="/admin/performance"
+                                element={
+                                    <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
+                                        <WasteCollectionPerformance />
+                                    </ProtectedRoute>
+                                }
+                            />
+                            <Route
+                                path="/admin/recycling"
+                                element={
+                                    <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
+                                        <RecyclingTrends />
+                                    </ProtectedRoute>
+                                }
+                            />
+                            <Route
+                                path="/admin/financial"
+                                element={
+                                    <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
+                                        <FinancialSummary />
+                                    </ProtectedRoute>
+                                }
+                            />
+                            <Route
+                                path="/admin/environmental"
+                                element={
+                                    <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
+                                        <EnvironmentalImpact />
+                                    </ProtectedRoute>
+                                }
+                            />
 
                         {/* Redirect unknown paths */}
                         <Route path="*" element={<Navigate to="/" replace />} />
