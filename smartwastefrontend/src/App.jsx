@@ -9,6 +9,9 @@ import SignIn from './pages/auth/SignIn';
 import ResidentDashboard from './pages/resident/Dashboard';
 import WorkerDashboard from './pages/worker/Dashboard';
 import AdminDashboard from './pages/admin/Dashboard';
+import BusinessDashboard from './pages/business/Dashboard';
+import PickupRequestPage from './pages/pickup/PickupRequestPage';
+import AdminPickupDashboard from './components/admin/AdminPickupDashboard';
 import { ROLES } from './constants/roles';
 
 /**
@@ -20,7 +23,8 @@ function Layout({ children }) {
     // Check if current path is a dashboard route
     const isDashboardRoute = location.pathname.startsWith('/admin/') ||
                              location.pathname.startsWith('/resident/') ||
-                             location.pathname.startsWith('/worker/');
+                             location.pathname.startsWith('/worker/') ||
+                             location.pathname.startsWith('/business/');
 
     return (
         <div className="min-h-screen flex flex-col">
@@ -75,6 +79,32 @@ function App() {
                             element={
                                 <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
                                     <AdminDashboard />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/business/dashboard"
+                            element={
+                                <ProtectedRoute allowedRoles={[ROLES.BUSINESS]}>
+                                    <BusinessDashboard />
+                                </ProtectedRoute>
+                            }
+                        />
+
+                        {/* Pickup Request Routes */}
+                        <Route
+                            path="/pickup-request"
+                            element={
+                                <ProtectedRoute allowedRoles={[ROLES.RESIDENT, ROLES.BUSINESS]}>
+                                    <PickupRequestPage />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/admin/pickup-management"
+                            element={
+                                <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
+                                    <AdminPickupDashboard />
                                 </ProtectedRoute>
                             }
                         />

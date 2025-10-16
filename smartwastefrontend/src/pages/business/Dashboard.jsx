@@ -1,28 +1,26 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import DashboardLayout from '../../components/dashboard/ResidentDashboardLayout';
+import DashboardLayout from '../../components/dashboard/BusinessDashboardLayout';
 import DashboardCard from '../../components/dashboard/DashboardCard';
 import ActionButton from '../../components/dashboard/ActionButton';
 import ActivityItem from '../../components/dashboard/ActivityItem';
-import { Calendar, Trash2, CreditCard, Award, MessageCircle } from 'lucide-react';
+import { Calendar, Trash2, CreditCard, Award, MessageCircle, Building2 } from 'lucide-react';
 
 /**
- * ResidentDashboard Component
- * Follows Single Responsibility - only handles resident dashboard view
+ * BusinessDashboard Component
+ * Follows Single Responsibility - only handles business dashboard view
  * Follows DRY - uses shared components
  * Follows Open/Closed - easy to extend with new features
  */
-const ResidentDashboard = () => {
+const BusinessDashboard = () => {
   const { user, logout } = useAuth();
-  const navigate = useNavigate();
   const [activeNav, setActiveNav] = useState('schedule');
 
-  // Define navigation items for resident
+  // Define navigation items for business (same as resident but with business terminology)
   const navItems = [
     { id: 'schedule', label: 'Collection Schedule', icon: Calendar },
     { id: 'pickup', label: 'Request Pickup', icon: Trash2 },
-    { id: 'bins', label: 'My Bins', icon: Trash2 },
+    { id: 'bins', label: 'Business Bins', icon: Trash2 },
     { id: 'payments', label: 'Payment History', icon: CreditCard },
     { id: 'rewards', label: 'Eco Rewards', icon: Award },
     { id: 'support', label: 'Support', icon: MessageCircle },
@@ -38,37 +36,37 @@ const ResidentDashboard = () => {
       navItems={navItems}
       activeNav={activeNav}
       onNavClick={setActiveNav}
-      logo="Resident"
+      logo="Business"
       user={user}
       onLogout={handleLogout}
-      pageTitle="Resident Dashboard"
-      pageSubtitle="Manage your waste collection and account"
+      pageTitle="Business Dashboard"
+      pageSubtitle="Manage your commercial waste collection and account"
     >
       {/* Dashboard Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <DashboardCard
-          title="Waste Account"
-          description="Manage your waste collection account"
-          icon="🗑️"
-          color="bg-emerald-500"
+          title="Business Account"
+          description="Manage your commercial waste collection account"
+          icon="🏢"
+          color="bg-blue-500"
         />
         <DashboardCard
           title="Request Pickup"
-          description="Schedule a waste pickup"
+          description="Schedule a commercial waste pickup"
           icon="📅"
           color="bg-blue-500"
         />
         <DashboardCard
           title="Payments"
-          description="View and make payments"
+          description="View and make business payments"
           icon="💳"
-          color="bg-purple-500"
+          color="bg-blue-500"
         />
         <DashboardCard
           title="Rewards"
-          description="Check your eco rewards"
+          description="Check your business eco rewards"
           icon="🏆"
-          color="bg-yellow-500"
+          color="bg-blue-500"
         />
       </div>
 
@@ -76,14 +74,9 @@ const ResidentDashboard = () => {
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <ActionButton 
-            label="Request Pickup" 
-            icon="📞" 
-            colorScheme="emerald" 
-            onClick={() => navigate('/pickup-request')}
-          />
-          <ActionButton label="View History" icon="📊" colorScheme="emerald" />
-          <ActionButton label="Contact Support" icon="💬" colorScheme="emerald" />
+          <ActionButton label="Schedule Pickup" icon="📞" colorScheme="blue" />
+          <ActionButton label="View History" icon="📊" colorScheme="blue" />
+          <ActionButton label="Contact Support" icon="💬" colorScheme="blue" />
         </div>
       </div>
 
@@ -92,17 +85,17 @@ const ResidentDashboard = () => {
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Activity</h2>
         <div className="space-y-3">
           <ActivityItem
-            title="Pickup Completed"
+            title="Commercial Pickup Completed"
             subtitle="Oct 14, 2024"
             status="success"
           />
           <ActivityItem
-            title="Payment Processed"
+            title="Business Payment Processed"
             subtitle="Oct 12, 2024"
             status="success"
           />
           <ActivityItem
-            title="Reward Earned: 50 Points"
+            title="Business Reward Earned: 100 Points"
             subtitle="Oct 10, 2024"
             status="info"
           />
@@ -112,4 +105,5 @@ const ResidentDashboard = () => {
   );
 };
 
-export default ResidentDashboard;
+export default BusinessDashboard;
+

@@ -87,13 +87,10 @@ export const Button = ({ type = 'button', onClick, children, variant = 'primary'
 };
 
 export const UserTypeSelector = ({ selectedType, onTypeChange }) => {
-  const userTypes = ['resident', 'worker', 'admin'];
+  const userTypes = ['resident', 'worker', 'admin', 'business'];
 
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        I am a
-      </label>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {userTypes.map(type => (
           <button

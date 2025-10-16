@@ -7,5 +7,6 @@ package com.csse.smartwaste.common.model;
 public enum Role {
     Resident,  // Manages waste account, requests pickups, makes payments
     Worker,    // Records waste collection, handles bins, reports issues  
-    Admin      // Manages operations, reviews requests, generates reports
+    Admin,     // Manages operations, reviews requests, generates reports
+    Business   // Manages commercial waste, bulk collections, business accounts
 }
