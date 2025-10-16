@@ -1,7 +1,10 @@
-import DashboardLayout from '../../components/dashboard/DashboardLayout';
+import { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import DashboardLayout from '../../components/dashboard/ResidentDashboardLayout';
 import DashboardCard from '../../components/dashboard/DashboardCard';
 import ActionButton from '../../components/dashboard/ActionButton';
 import ActivityItem from '../../components/dashboard/ActivityItem';
+import { Calendar, Trash2, CreditCard, Award, MessageCircle } from 'lucide-react';
 
 /**
  * ResidentDashboard Component
@@ -10,8 +13,35 @@ import ActivityItem from '../../components/dashboard/ActivityItem';
  * Follows Open/Closed - easy to extend with new features
  */
 const ResidentDashboard = () => {
+  const { user, logout } = useAuth();
+  const [activeNav, setActiveNav] = useState('schedule');
+
+  // Define navigation items for resident
+  const navItems = [
+    { id: 'schedule', label: 'Collection Schedule', icon: Calendar },
+    { id: 'pickup', label: 'Request Pickup', icon: Trash2 },
+    { id: 'bins', label: 'My Bins', icon: Trash2 },
+    { id: 'payments', label: 'Payment History', icon: CreditCard },
+    { id: 'rewards', label: 'Eco Rewards', icon: Award },
+    { id: 'support', label: 'Support', icon: MessageCircle },
+  ];
+
+  // Logout handler
+  const handleLogout = () => {
+    logout();
+  };
+
   return (
-    <DashboardLayout subtitle="Resident Dashboard">
+    <DashboardLayout
+      navItems={navItems}
+      activeNav={activeNav}
+      onNavClick={setActiveNav}
+      logo="Resident"
+      user={user}
+      onLogout={handleLogout}
+      pageTitle="Resident Dashboard"
+      pageSubtitle="Manage your waste collection and account"
+    >
       {/* Dashboard Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <DashboardCard
@@ -76,4 +106,3 @@ const ResidentDashboard = () => {
 };
 
 export default ResidentDashboard;
-

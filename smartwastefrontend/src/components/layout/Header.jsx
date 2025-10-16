@@ -7,30 +7,37 @@ import { ROLES } from '../../constants/roles';
 
 // Public navigation items
 const PUBLIC_NAV_ITEMS = [
-  { name: 'Home', path: '#home' },
-  { name: 'Services', path: '#services' },
-  { name: 'About', path: '#about' },
-  { name: 'Contact', path: '#contact' }
+  { name: 'Home', path: '/' },
+  { name: 'Services', path: '/services' },
+  { name: 'Pricing', path: '/pricing' },
+  { name: 'Track Collection', path: '/track' },
+  { name: 'About Us', path: '/about' },
+  { name: 'Contact Us', path: '/contact' }
 ];
 
 // Role-specific navigation items
 const ROLE_NAV_ITEMS = {
   [ROLES.RESIDENT]: [
     { name: 'Dashboard', path: '/resident/dashboard', icon: '🏠' },
-    { name: 'Pickups', path: '/resident/pickups', icon: '🗑️' },
+    { name: 'Schedule', path: '/resident/schedule', icon: '📅' },
+    { name: 'Request Pickup', path: '/resident/pickups', icon: '🗑️' },
     { name: 'Payments', path: '/resident/payments', icon: '💳' },
-    { name: 'Rewards', path: '/resident/rewards', icon: '🏆' }
+    { name: 'Rewards', path: '/resident/rewards', icon: '🏆' },
+    { name: 'Support', path: '/resident/support', icon: '💬' }
   ],
   [ROLES.WORKER]: [
     { name: 'Dashboard', path: '/worker/dashboard', icon: '🏠' },
-    { name: 'Routes', path: '/worker/routes', icon: '🗺️' },
+    { name: 'My Routes', path: '/worker/routes', icon: '🗺️' },
+    { name: 'Collections', path: '/worker/collections', icon: '🗑️' },
     { name: 'Reports', path: '/worker/reports', icon: '📝' },
     { name: 'Schedule', path: '/worker/schedule', icon: '📅' }
   ],
   [ROLES.ADMIN]: [
     { name: 'Dashboard', path: '/admin/dashboard', icon: '🏠' },
+    { name: 'Reports', path: '/admin/reports', icon: '📊' },
     { name: 'Users', path: '/admin/users', icon: '👥' },
-    { name: 'Analytics', path: '/admin/analytics', icon: '📊' },
+    { name: 'Routes', path: '/admin/routes', icon: '🗺️' },
+    { name: 'Requests', path: '/admin/requests', icon: '📋' },
     { name: 'Settings', path: '/admin/settings', icon: '⚙️' }
   ]
 };
@@ -56,7 +63,7 @@ const Header = () => {
     };
   }, []);
 
-  const currentNavItems = isAuthenticated() && user?.role 
+  const currentNavItems = isAuthenticated() && user?.role
     ? ROLE_NAV_ITEMS[user.role] || []
     : PUBLIC_NAV_ITEMS;
 
@@ -67,15 +74,18 @@ const Header = () => {
 
   return (
     <>
-      <header className="bg-white/95 backdrop-blur-md shadow-md fixed w-full top-0 z-50 border-b border-gray-100">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+      <header className="bg-white shadow-md fixed w-full top-0 z-50 border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-3 group">
-              <div className="w-10 h-10 bg-gradient-to-br from-[#4CBB17] to-[#3d9613] rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-105">
+              <div
+                className="w-10 h-10 rounded-lg flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-105"
+                style={{ backgroundColor: '#4CBB17' }}
+              >
                 <IoLeafOutline className="text-white text-xl" />
               </div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-[#2f7410] to-[#4CBB17] bg-clip-text text-transparent">
+              <h1 className="text-xl font-bold" style={{ color: '#4CBB17' }}>
                 EcoCollect
               </h1>
             </Link>
@@ -89,23 +99,42 @@ const Header = () => {
                   onClick={() => setActiveItem(item.name)}
                   className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 ${
                     activeItem === item.name
-                      ? 'text-[#2f7410] bg-[#edfae0]'
-                      : 'text-gray-700 hover:text-[#4CBB17] hover:bg-[#edfae0]/50'
+                      ? 'text-gray-700 hover:text-gray-900'
+                      : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
                   }`}
+                  style={activeItem === item.name ? {
+                    backgroundColor: '#4CBB1715',
+                    color: '#4CBB17'
+                  } : {}}
+                  onMouseEnter={(e) => {
+                    if (activeItem !== item.name) {
+                      e.currentTarget.style.backgroundColor = '#4CBB1710';
+                      e.currentTarget.style.color = '#4CBB17';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (activeItem !== item.name) {
+                      e.currentTarget.style.backgroundColor = '';
+                      e.currentTarget.style.color = '';
+                    }
+                  }}
                 >
                   {item.icon && <span>{item.icon}</span>}
                   <span>{item.name}</span>
                 </Link>
               ))}
-              
+
               {/* User Menu or Auth Buttons */}
               {isAuthenticated() ? (
                 <div className="relative ml-4" ref={userMenuRef}>
                   <button
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                    className="flex items-center space-x-2 px-4 py-2 rounded-lg font-medium text-gray-700 hover:text-[#4CBB17] hover:bg-[#edfae0]/50 transition-all duration-200"
+                    className="flex items-center space-x-2 px-4 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-all duration-200"
                   >
-                    <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center">
+                    <div
+                      className="w-8 h-8 rounded-full flex items-center justify-center"
+                      style={{ backgroundColor: '#4CBB17' }}
+                    >
                       <span className="text-white font-bold text-sm">
                         {user?.name?.charAt(0)?.toUpperCase()}
                       </span>
@@ -139,7 +168,8 @@ const Header = () => {
                       </Link>
                       <button
                         onClick={handleLogout}
-                        className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                        className="flex items-center w-full px-4 py-2 text-sm text-white hover:opacity-90 rounded-b-lg transition-opacity"
+                        style={{ backgroundColor: '#4CBB17' }}
                       >
                         <HiLogout className="w-4 h-4 mr-3" />
                         Logout
@@ -151,12 +181,17 @@ const Header = () => {
                 <div className="ml-4 flex items-center space-x-2">
                   <Link
                     to="/signin"
-                    className="px-4 py-2 text-gray-700 hover:text-[#4CBB17] font-medium transition-colors"
+                    className="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium transition-colors"
                   >
                     Sign In
                   </Link>
                   <Link to="/signup">
-                    <button className="bg-gradient-to-r from-[#4CBB17] to-[#3d9613] text-white px-6 py-2.5 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105 transform">
+                    <button
+                      className="text-white px-6 py-2.5 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105 transform"
+                      style={{ backgroundColor: '#4CBB17' }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = '#3da612'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = '#4CBB17'}
+                    >
                       Get Started
                     </button>
                   </Link>
@@ -168,13 +203,13 @@ const Header = () => {
             <div className="md:hidden flex items-center">
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="text-gray-700 hover:text-[#4CBB17] hover:bg-[#edfae0] p-2 rounded-lg transition-all duration-200"
+                className="text-gray-700 hover:bg-gray-50 p-2 rounded-lg transition-all duration-200"
                 aria-label="Toggle menu"
               >
                 {isMobileMenuOpen ? (
-                  <HiX className="h-6 w-6" />
+                  <HiX className="h-6 w-6" style={{ color: '#4CBB17' }} />
                 ) : (
-                  <HiMenu className="h-6 w-6" />
+                  <HiMenu className="h-6 w-6" style={{ color: '#4CBB17' }} />
                 )}
               </button>
             </div>
@@ -189,16 +224,16 @@ const Header = () => {
               : 'max-h-0 opacity-0 overflow-hidden'
           }`}
         >
-          <div className="px-4 pt-2 pb-4 space-y-2">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-4 space-y-2">
             {currentNavItems.map((item) => (
               <Link
                 key={item.name}
                 to={item.path}
-                className={`block px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 flex items-center space-x-2 ${
-                  activeItem === item.name
-                    ? 'text-[#2f7410] bg-[#edfae0]'
-                    : 'text-gray-700 hover:bg-[#edfae0]/50 hover:text-[#4CBB17]'
-                }`}
+                className="block px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 flex items-center space-x-2 text-gray-700 hover:bg-gray-50"
+                style={activeItem === item.name ? {
+                  backgroundColor: '#4CBB1715',
+                  color: '#4CBB17'
+                } : {}}
                 onClick={() => {
                   setActiveItem(item.name);
                   setIsMobileMenuOpen(false);
@@ -208,7 +243,7 @@ const Header = () => {
                 <span>{item.name}</span>
               </Link>
             ))}
-            
+
             {/* Mobile User Menu or Auth Buttons */}
             {isAuthenticated() ? (
               <div className="pt-2 border-t border-gray-200">
@@ -235,7 +270,8 @@ const Header = () => {
                     handleLogout();
                     setIsMobileMenuOpen(false);
                   }}
-                  className="block w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg"
+                  className="block w-full text-left px-4 py-3 text-white rounded-lg"
+                  style={{ backgroundColor: '#4CBB17' }}
                 >
                   Logout
                 </button>
@@ -254,7 +290,12 @@ const Header = () => {
                   className="block w-full"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  <button className="w-full bg-gradient-to-r from-[#4CBB17] to-[#3d9613] text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300">
+                  <button
+                    className="w-full text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
+                    style={{ backgroundColor: '#4CBB17' }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#3da612'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = '#4CBB17'}
+                  >
                     Get Started
                   </button>
                 </Link>

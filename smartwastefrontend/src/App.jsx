@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Header from './components/layout/Header';
@@ -12,6 +12,32 @@ import AdminDashboard from './pages/admin/Dashboard';
 import { ROLES } from './constants/roles';
 
 /**
+ * Layout wrapper component that conditionally renders Header and Footer
+ */
+function Layout({ children }) {
+    const location = useLocation();
+
+    // Check if current path is a dashboard route
+    const isDashboardRoute = location.pathname.startsWith('/admin/') ||
+                             location.pathname.startsWith('/resident/') ||
+                             location.pathname.startsWith('/worker/');
+
+    return (
+        <div className="min-h-screen flex flex-col">
+            {/* Only show Header on non-dashboard pages */}
+            {!isDashboardRoute && <Header />}
+
+            <div className="flex-1">
+                {children}
+            </div>
+
+            {/* Only show Footer on non-dashboard pages */}
+            {!isDashboardRoute && <Footer />}
+        </div>
+    );
+}
+
+/**
  * App Component - Main application component
  * Follows Dependency Inversion - components depend on AuthProvider abstraction
  * Follows Open/Closed - easy to add new routes without modifying existing code
@@ -20,56 +46,46 @@ function App() {
     return (
         <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <AuthProvider>
-                <div className="min-h-screen flex flex-col">
-                    <Header />
+                <Layout>
+                    <Routes>
+                        {/* Public Pages */}
+                        <Route path="/" element={<Home />} />
+                        <Route path="/signup" element={<SignUp />} />
+                        <Route path="/signin" element={<SignIn />} />
 
-                    <div className="flex-1">
-                        <Routes>
-                            {/* Public Pages */}
-                            <Route path="/" element={<Home />} />
-                            <Route path="/signup" element={<SignUp />} />
-                            <Route path="/signin" element={<SignIn />} />
+                        {/* Protected Role-Based Dashboards */}
+                        <Route
+                            path="/resident/dashboard"
+                            element={
+                                <ProtectedRoute allowedRoles={[ROLES.RESIDENT]}>
+                                    <ResidentDashboard />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/worker/dashboard"
+                            element={
+                                <ProtectedRoute allowedRoles={[ROLES.WORKER]}>
+                                    <WorkerDashboard />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/admin/dashboard"
+                            element={
+                                <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
+                                    <AdminDashboard />
+                                </ProtectedRoute>
+                            }
+                        />
 
-                            {/* Protected Role-Based Dashboards */}
-                            <Route 
-                                path="/resident/dashboard" 
-                                element={
-                                    <ProtectedRoute allowedRoles={[ROLES.RESIDENT]}>
-                                        <ResidentDashboard />
-                                    </ProtectedRoute>
-                                } 
-                            />
-                            <Route 
-                                path="/worker/dashboard" 
-                                element={
-                                    <ProtectedRoute allowedRoles={[ROLES.WORKER]}>
-                                        <WorkerDashboard />
-                                    </ProtectedRoute>
-                                } 
-                            />
-                            <Route 
-                                path="/admin/dashboard" 
-                                element={
-                                    <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
-                                        <AdminDashboard />
-                                    </ProtectedRoute>
-                                } 
-                            />
-
-                            {/* Redirect unknown paths */}
-                            <Route path="*" element={<Navigate to="/" replace />} />
-                        </Routes>
-                    </div>
-
-                    <Footer />
-                </div>
+                        {/* Redirect unknown paths */}
+                        <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+                </Layout>
             </AuthProvider>
         </Router>
     );
 }
 
 export default App;
-
-
-
-

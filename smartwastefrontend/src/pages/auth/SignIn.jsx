@@ -91,7 +91,8 @@ const SignIn = () => {
               id="remember-me"
               name="remember-me"
               type="checkbox"
-              className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
+              className="h-4 w-4 border-gray-300 rounded"
+              style={{ accentColor: '#4CBB17' }}
             />
             <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
               Remember me
@@ -99,14 +100,20 @@ const SignIn = () => {
           </div>
 
           <div className="text-sm">
-            <a href="#" className="font-medium text-emerald-600 hover:text-emerald-500 transition-colors">
+            <a
+              href="#"
+              className="font-medium transition-colors"
+              style={{ color: '#4CBB17' }}
+              onMouseEnter={(e) => e.target.style.color = '#3da612'}
+              onMouseLeave={(e) => e.target.style.color = '#4CBB17'}
+            >
               Forgot password?
             </a>
           </div>
         </div>
 
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           className="w-full"
           disabled={isLoading}
         >
@@ -142,4 +149,3 @@ const SignIn = () => {
 };
 
 export default SignIn;
-
