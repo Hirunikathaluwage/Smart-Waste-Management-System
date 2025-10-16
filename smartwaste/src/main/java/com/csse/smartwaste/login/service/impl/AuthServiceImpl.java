@@ -117,13 +117,9 @@ public class AuthServiceImpl implements AuthService {
     /**
      * Helper method to map User entity to UserResponse DTO
      * Follows Single Responsibility - dedicated to DTO mapping
+     * Uses the new fromUser method for backward compatibility
      */
     private UserResponse mapToUserResponse(User user) {
-        return new UserResponse(
-                user.getUserId(),
-                user.getName(),
-                user.getEmail(),
-                user.getRole()
-        );
+        return UserResponse.fromUser(user);
     }
 }
