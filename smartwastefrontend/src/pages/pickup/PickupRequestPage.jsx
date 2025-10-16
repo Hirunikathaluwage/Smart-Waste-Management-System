@@ -1,11 +1,27 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import DashboardLayout from '../../components/dashboard/ResidentDashboardLayout';
 import PickupRequestForm from '../../components/pickup/PickupRequestForm';
 import PickupRequestList from '../../components/pickup/PickupRequestList';
+import { Calendar, Trash2, CreditCard, Award, MessageCircle } from 'lucide-react';
 
 const PickupRequestPage = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('new');
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [successData, setSuccessData] = useState(null);
+
+  // Define navigation items for resident
+  const navItems = [
+    { id: 'overview', label: 'Overview', icon: Calendar },
+    { id: 'requests', label: 'My Requests', icon: Trash2 },
+    { id: 'schedule', label: 'Collection Schedule', icon: Calendar },
+    { id: 'payments', label: 'Payment History', icon: CreditCard },
+    { id: 'rewards', label: 'Eco Rewards', icon: Award },
+    { id: 'support', label: 'Support', icon: MessageCircle },
+  ];
 
   const handleRequestSuccess = (result) => {
     setSuccessData(result);
@@ -22,18 +38,40 @@ const PickupRequestPage = () => {
     setActiveTab('list');
   };
 
-  const user = JSON.parse(localStorage.getItem('user') || 'null');
+  const handleLogout = () => {
+    logout();
+  };
+
+  const handleNavClick = (navId) => {
+    if (navId === 'overview') {
+      navigate('/resident/dashboard');
+    } else if (navId === 'requests') {
+      // Stay on current page but switch to requests tab
+      setActiveTab('list');
+    } else {
+      // For other nav items, navigate to dashboard with appropriate tab
+      navigate('/resident/dashboard');
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Waste Pickup Requests</h1>
-          <p className="mt-2 text-gray-600">
-            Request waste pickup services for your home or business
-          </p>
-        </div>
+    <DashboardLayout
+      navItems={navItems}
+      activeNav="requests"
+      onNavClick={handleNavClick}
+      logo="Resident"
+      user={user}
+      onLogout={handleLogout}
+      pageTitle="Waste Pickup Requests"
+      pageSubtitle="Request waste pickup services for your home or business"
+    >
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Waste Pickup Requests</h1>
+        <p className="mt-2 text-gray-600">
+          Request waste pickup services for your home or business
+        </p>
+      </div>
 
         {/* Success Message */}
         {showSuccessMessage && successData && (
@@ -175,8 +213,7 @@ const PickupRequestPage = () => {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+    </DashboardLayout>
   );
 };
 
