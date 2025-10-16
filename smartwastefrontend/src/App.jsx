@@ -23,9 +23,10 @@ function Layout({ children }) {
     const location = useLocation();
 
     // Check if current path is a dashboard route
-    const isDashboardRoute = location.pathname.startsWith('/admin/') ||
-                             location.pathname.startsWith('/resident/') ||
-                             location.pathname.startsWith('/worker/');
+    const isDashboardRoute =
+        location.pathname.startsWith('/admin/') ||
+        location.pathname.startsWith('/resident/') ||
+        location.pathname.startsWith('/worker/');
 
     return (
         <div className="min-h-screen flex flex-col">
@@ -84,6 +85,16 @@ function App() {
                             }
                         />
 
+                        {/* ✅ Admin - Analytics Page (separate route for analytics dashboard) */}
+                        <Route
+                            path="/admin/analytics"
+                            element={
+                                <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
+                                    <AdminDashboard />
+                                </ProtectedRoute>
+                            }
+                        />
+
                         {/* Admin - Bin Requests Management */}
                         <Route
                             path="/admin/bins"
@@ -94,38 +105,39 @@ function App() {
                             }
                         />
 
-                            <Route
-                                path="/admin/performance"
-                                element={
-                                    <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
-                                        <WasteCollectionPerformance />
-                                    </ProtectedRoute>
-                                }
-                            />
-                            <Route
-                                path="/admin/recycling"
-                                element={
-                                    <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
-                                        <RecyclingTrends />
-                                    </ProtectedRoute>
-                                }
-                            />
-                            <Route
-                                path="/admin/financial"
-                                element={
-                                    <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
-                                        <FinancialSummary />
-                                    </ProtectedRoute>
-                                }
-                            />
-                            <Route
-                                path="/admin/environmental"
-                                element={
-                                    <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
-                                        <EnvironmentalImpact />
-                                    </ProtectedRoute>
-                                }
-                            />
+                        {/* Admin - Analytics Sub Dashboards */}
+                        <Route
+                            path="/admin/performance"
+                            element={
+                                <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
+                                    <WasteCollectionPerformance />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/admin/recycling"
+                            element={
+                                <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
+                                    <RecyclingTrends />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/admin/financial"
+                            element={
+                                <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
+                                    <FinancialSummary />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/admin/environmental"
+                            element={
+                                <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
+                                    <EnvironmentalImpact />
+                                </ProtectedRoute>
+                            }
+                        />
 
                         {/* Redirect unknown paths */}
                         <Route path="*" element={<Navigate to="/" replace />} />

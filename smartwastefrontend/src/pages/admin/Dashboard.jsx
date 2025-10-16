@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import DashboardLayout from '../../components/dashboard/AdminDashboardLayout';
 import {
@@ -9,8 +9,22 @@ import {
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useAuth();
-  const [activeNav, setActiveNav] = useState('reports');
+
+  // ✅ Detect and set active nav based on current path
+  const [activeNav, setActiveNav] = useState(
+    location.pathname.includes('/analytics') ? 'analytics' : 'reports'
+  );
+
+  useEffect(() => {
+    if (location.pathname.includes('/analytics')) {
+      setActiveNav('analytics');
+    } else {
+      setActiveNav('reports');
+    }
+  }, [location.pathname]);
+
   const [reportType, setReportType] = useState('waste-trends');
   const [area, setArea] = useState('all-areas');
   const [dateRange, setDateRange] = useState('');
@@ -21,7 +35,7 @@ const AdminDashboard = () => {
     hazardous: false
   });
 
-  // Navigation items WITH Analytics
+  // Sidebar navigation items
   const navItems = [
     { id: 'reports', label: 'Generate Reports', icon: BarChart3 },
     { id: 'pickups', label: 'Special Pickups', icon: Package },
@@ -31,7 +45,7 @@ const AdminDashboard = () => {
     { id: 'analytics', label: 'Analytics', icon: LineChart },
   ];
 
-  // Analytics Dashboard Cards
+  // Analytics dashboard cards
   const analyticsDashboards = [
     {
       id: 'performance',
@@ -121,16 +135,14 @@ const AdminDashboard = () => {
     }
   ];
 
-  const handleLogout = () => {
-    logout();
-  };
+  const handleLogout = () => logout();
 
+  // ✅ Sidebar navigation click handling
   const handleNavClick = (navId) => {
     setActiveNav(navId);
-    if (navId === 'bins') {
-      navigate('/admin/bins');
-    }
-    // Don't navigate away for other nav items, just change the view
+    if (navId === 'bins') navigate('/admin/bins');
+    else if (navId === 'analytics') navigate('/admin/analytics');
+    else if (navId === 'reports') navigate('/admin/dashboard');
   };
 
   const handleWasteTypeChange = (type) => {
@@ -162,10 +174,10 @@ const AdminDashboard = () => {
         ? 'Access comprehensive analytics and reporting tools'
         : 'Create comprehensive reports and analyze waste management data'}
     >
-      {/* SHOW ANALYTICS VIEW WHEN ANALYTICS IS ACTIVE */}
+
+      {/* ✅ ANALYTICS VIEW */}
       {activeNav === 'analytics' ? (
         <>
-          {/* Analytics Dashboards Navigation Cards */}
           <div className="mb-6">
             <div className="flex items-center justify-between mb-6">
               <div>
@@ -173,6 +185,7 @@ const AdminDashboard = () => {
                 <p className="text-gray-600 mt-1">Select a dashboard to view detailed analytics and insights</p>
               </div>
             </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {analyticsDashboards.map((dashboard) => {
                 const IconComponent = dashboard.icon;
@@ -180,8 +193,7 @@ const AdminDashboard = () => {
                   <div
                     key={dashboard.id}
                     onClick={() => navigate(dashboard.path)}
-                    className="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-xl transition-all duration-200 border-2 border-transparent hover:border-opacity-50 group"
-                    style={{ '--hover-border-color': dashboard.color }}
+                    className="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-xl transition-all duration-200 border-2 border-transparent group"
                     onMouseEnter={(e) => e.currentTarget.style.borderColor = dashboard.color}
                     onMouseLeave={(e) => e.currentTarget.style.borderColor = 'transparent'}
                   >
@@ -192,23 +204,19 @@ const AdminDashboard = () => {
                       >
                         <IconComponent className="w-6 h-6" style={{ color: dashboard.color }} />
                       </div>
-                      <ArrowRight
-                        className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-all group-hover:translate-x-1"
-                      />
+                      <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-all group-hover:translate-x-1" />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-opacity-80">
                       {dashboard.title}
                     </h3>
-                    <p className="text-sm text-gray-600">
-                      {dashboard.description}
-                    </p>
+                    <p className="text-sm text-gray-600">{dashboard.description}</p>
                   </div>
                 );
               })}
             </div>
           </div>
 
-          {/* Quick Stats for Analytics View */}
+          {/* Analytics Quick Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {statistics.map((stat) => {
               const IconComponent = stat.icon;
@@ -233,22 +241,18 @@ const AdminDashboard = () => {
           </div>
         </>
       ) : (
-        /* SHOW ORIGINAL REPORTS VIEW */
+        /* ✅ REPORT GENERATION VIEW */
         <>
           {/* Report Generation Form */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Report Type
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Report Type</label>
                 <select
                   value={reportType}
                   onChange={(e) => setReportType(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2"
                   style={{ '--tw-ring-color': '#4CBB17' }}
-                  onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px rgba(76, 187, 23, 0.5)'}
-                  onBlur={(e) => e.target.style.boxShadow = ''}
                 >
                   <option value="waste-trends">Waste Trends</option>
                   <option value="collection-routes">Collection Routes</option>
@@ -258,16 +262,12 @@ const AdminDashboard = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Area
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Area</label>
                 <select
                   value={area}
                   onChange={(e) => setArea(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2"
                   style={{ '--tw-ring-color': '#4CBB17' }}
-                  onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px rgba(76, 187, 23, 0.5)'}
-                  onBlur={(e) => e.target.style.boxShadow = ''}
                 >
                   <option value="all-areas">All Areas</option>
                   <option value="downtown">Downtown</option>
@@ -279,24 +279,18 @@ const AdminDashboard = () => {
             </div>
 
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Date Range
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
               <input
                 type="date"
                 value={dateRange}
                 onChange={(e) => setDateRange(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2"
                 style={{ '--tw-ring-color': '#4CBB17' }}
-                onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px rgba(76, 187, 23, 0.5)'}
-                onBlur={(e) => e.target.style.boxShadow = ''}
               />
             </div>
 
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Waste Types
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Waste Types</label>
               <div className="flex flex-wrap gap-4">
                 {Object.keys(selectedWasteTypes).map((type) => (
                   <label key={type} className="flex items-center space-x-2 cursor-pointer">
@@ -307,9 +301,7 @@ const AdminDashboard = () => {
                       className="h-4 w-4 rounded border-gray-300"
                       style={{ accentColor: '#4CBB17' }}
                     />
-                    <span className="text-sm text-gray-700 capitalize">
-                      {type.replace('-', ' ')}
-                    </span>
+                    <span className="text-sm text-gray-700 capitalize">{type}</span>
                   </label>
                 ))}
               </div>
@@ -417,8 +409,6 @@ const AdminDashboard = () => {
                         <button
                           className="px-3 py-1 text-white rounded text-xs font-medium mr-2 transition-colors"
                           style={{ backgroundColor: '#4CBB17' }}
-                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#3da612'}
-                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#4CBB17'}
                         >
                           Approve
                         </button>
