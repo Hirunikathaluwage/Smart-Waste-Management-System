@@ -12,7 +12,7 @@ const AdminDashboard = () => {
   const location = useLocation();
   const { user, logout } = useAuth();
 
-  // ✅ Detect and set active nav based on current path
+  // Detect and set active nav based on current path
   const [activeNav, setActiveNav] = useState(
     location.pathname.includes('/analytics') ? 'analytics' : 'reports'
   );
@@ -137,7 +137,7 @@ const AdminDashboard = () => {
 
   const handleLogout = () => logout();
 
-  // ✅ Sidebar navigation click handling
+  // Sidebar navigation click handling
   const handleNavClick = (navId) => {
     setActiveNav(navId);
     if (navId === 'bins') navigate('/admin/bins');
@@ -175,7 +175,7 @@ const AdminDashboard = () => {
         : 'Create comprehensive reports and analyze waste management data'}
     >
 
-      {/* ✅ ANALYTICS VIEW */}
+      {/* ANALYTICS VIEW */}
       {activeNav === 'analytics' ? (
         <>
           <div className="mb-6">
@@ -241,7 +241,7 @@ const AdminDashboard = () => {
           </div>
         </>
       ) : (
-        /* ✅ REPORT GENERATION VIEW */
+        /* REPORT GENERATION VIEW */
         <>
           {/* Report Generation Form */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
