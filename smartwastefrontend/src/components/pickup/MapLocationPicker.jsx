@@ -18,6 +18,8 @@ const MapLocationPicker = ({
   const [isLoading, setIsLoading] = useState(false);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(null);
+  const [showManualInput, setShowManualInput] = useState(false);
+  const [manualAddress, setManualAddress] = useState('');
 
   // Set Mapbox access token
   mapboxgl.accessToken = MAPBOX_CONFIG.accessToken;
@@ -129,37 +131,111 @@ const MapLocationPicker = ({
     setIsLoading(true);
     
     try {
-      // Reverse geocoding to get address from coordinates
-      const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${MAPBOX_CONFIG.accessToken}&types=address,poi`
+      // Enhanced reverse geocoding to get better address information
+      // Try multiple approaches to get the best address
+      let response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${MAPBOX_CONFIG.accessToken}&types=address,poi,street,locality,neighborhood&limit=1`
       );
       
-      const data = await response.json();
+      let data = await response.json();
+      
+      // If no good results, try with broader search
+      if (!data.features || data.features.length === 0 || 
+          (data.features[0].place_name && data.features[0].place_name.includes('Unknown'))) {
+        response = await fetch(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${MAPBOX_CONFIG.accessToken}&types=address,street,locality,neighborhood,place&limit=3`
+        );
+        data = await response.json();
+      }
       
       let address = 'Unknown Location';
       let city = '';
       let postalCode = '';
+      let streetName = '';
+      let houseNumber = '';
       
       if (data.features && data.features.length > 0) {
-        const feature = data.features[0];
-        address = feature.place_name || feature.text || 'Unknown Location';
+        // Find the best feature (prefer address over poi)
+        let bestFeature = data.features.find(f => f.place_type.includes('address')) || data.features[0];
+        
+        // Try to get the most specific address information
+        if (bestFeature.properties && bestFeature.properties.address) {
+          address = bestFeature.properties.address;
+        } else if (bestFeature.text) {
+          address = bestFeature.text;
+        } else if (bestFeature.place_name) {
+          address = bestFeature.place_name;
+        }
+        
+        // Extract detailed address components
+        if (bestFeature.properties) {
+          if (bestFeature.properties.street) streetName = bestFeature.properties.street;
+          if (bestFeature.properties.house_number) houseNumber = bestFeature.properties.house_number;
+        }
         
         // Extract city and postal code from context
-        if (feature.context) {
-          const cityFeature = feature.context.find(ctx => ctx.id.startsWith('place.'));
-          const postalFeature = feature.context.find(ctx => ctx.id.startsWith('postcode.'));
+        if (bestFeature.context) {
+          const cityFeature = bestFeature.context.find(ctx => 
+            ctx.id.startsWith('place.') || ctx.id.startsWith('locality.')
+          );
+          const postalFeature = bestFeature.context.find(ctx => ctx.id.startsWith('postcode.'));
+          const regionFeature = bestFeature.context.find(ctx => ctx.id.startsWith('region.'));
           
           if (cityFeature) city = cityFeature.text;
           if (postalFeature) postalCode = postalFeature.text;
+          
+          // If no city found, try region
+          if (!city && regionFeature) city = regionFeature.text;
         }
+        
+        // Build a more complete address
+        let fullAddress = '';
+        if (houseNumber && streetName) {
+          fullAddress = `${houseNumber} ${streetName}`;
+        } else if (streetName) {
+          fullAddress = streetName;
+        } else if (address && !address.includes('Unknown')) {
+          fullAddress = address;
+        }
+        
+        // Add city and postal code if available
+        if (city && !city.includes('Unknown')) {
+          fullAddress += fullAddress ? `, ${city}` : city;
+        }
+        if (postalCode && !postalCode.includes('Unknown')) {
+          fullAddress += fullAddress ? ` ${postalCode}` : postalCode;
+        }
+        
+        // Use the full address if we built one, otherwise use the original address
+        if (fullAddress.trim()) {
+          address = fullAddress.trim();
+        }
+        
+        // If still unknown, try to get a nearby street name
+        if (address.includes('Unknown') && data.features.length > 1) {
+          const streetFeature = data.features.find(f => 
+            f.place_type.includes('street') || f.place_type.includes('address')
+          );
+          if (streetFeature && streetFeature.text) {
+            address = streetFeature.text;
+            if (city) address += `, ${city}`;
+            if (postalCode) address += ` ${postalCode}`;
+          }
+        }
+      }
+
+      // If address is still unknown, show manual input option
+      if (address.includes('Unknown')) {
+        setShowManualInput(true);
+        address = 'Please enter address manually';
       }
 
       const locationData = {
         latitude: lat,
         longitude: lng,
         address,
-        city,
-        postalCode,
+        city: city || 'Unknown City',
+        postalCode: postalCode || 'Unknown',
         formattedAddress: address
       };
 
@@ -217,6 +293,23 @@ const MapLocationPicker = ({
         setIsLoading(false);
       }
     );
+  };
+
+  const handleManualAddressSubmit = () => {
+    if (!manualAddress.trim()) return;
+    
+    const locationData = {
+      latitude: selectedLocation?.latitude || 0,
+      longitude: selectedLocation?.longitude || 0,
+      address: manualAddress.trim(),
+      city: selectedLocation?.city || 'Unknown City',
+      postalCode: selectedLocation?.postalCode || 'Unknown',
+      formattedAddress: manualAddress.trim()
+    };
+
+    setSelectedLocation(locationData);
+    setShowManualInput(false);
+    onLocationSelect(locationData);
   };
 
   return (
@@ -287,6 +380,42 @@ const MapLocationPicker = ({
           {selectedLocation.postalCode && (
             <p className="text-xs text-green-600">Postal Code: {selectedLocation.postalCode}</p>
           )}
+        </div>
+      )}
+
+      {/* Manual Address Input */}
+      {showManualInput && (
+        <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <h4 className="font-semibold text-yellow-800 mb-2">📍 Manual Address Entry</h4>
+          <p className="text-sm text-yellow-700 mb-3">
+            The map couldn't find a specific address for this location. Please enter the address manually:
+          </p>
+          <div className="space-y-3">
+            <input
+              type="text"
+              value={manualAddress}
+              onChange={(e) => setManualAddress(e.target.value)}
+              placeholder="Enter the full address (e.g., 123 Main Street, Colombo, 10000)"
+              className="w-full p-3 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+            />
+            <div className="flex space-x-2">
+              <button
+                onClick={handleManualAddressSubmit}
+                className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+              >
+                Use This Address
+              </button>
+              <button
+                onClick={() => {
+                  setShowManualInput(false);
+                  setManualAddress('');
+                }}
+                className="px-4 py-2 border border-yellow-300 text-yellow-700 rounded-lg hover:bg-yellow-50 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
