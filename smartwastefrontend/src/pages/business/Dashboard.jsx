@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import DashboardLayout from '../../components/dashboard/BusinessDashboardLayout';
 import DashboardCard from '../../components/dashboard/DashboardCard';
 import ActionButton from '../../components/dashboard/ActionButton';
 import ActivityItem from '../../components/dashboard/ActivityItem';
-import { Calendar, Trash2, CreditCard, Award, MessageCircle, Building2 } from 'lucide-react';
+import PickupRequestList from '../../components/pickup/PickupRequestList';
+import pickupRequestService from '../../services/pickupRequestService';
+import { Calendar, Trash2, CreditCard, Award, MessageCircle, Building2, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 
 /**
  * BusinessDashboard Component
