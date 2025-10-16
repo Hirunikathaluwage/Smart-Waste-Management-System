@@ -1,7 +1,10 @@
-import DashboardLayout from '../../components/dashboard/DashboardLayout';
+import { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import DashboardLayout from '../../components/dashboard/WorkerDashboardLayout';
 import DashboardCard from '../../components/dashboard/DashboardCard';
 import ActionButton from '../../components/dashboard/ActionButton';
 import ActivityItem from '../../components/dashboard/ActivityItem';
+import { Truck, Trash2, Package, Clock, CheckSquare, MapPin } from 'lucide-react';
 
 /**
  * WorkerDashboard Component
@@ -10,8 +13,35 @@ import ActivityItem from '../../components/dashboard/ActivityItem';
  * Follows Open/Closed - easy to extend with new features
  */
 const WorkerDashboard = () => {
+  const { user, logout } = useAuth();
+  const [activeNav, setActiveNav] = useState('routes');
+
+  // Define navigation items for worker
+  const navItems = [
+    { id: 'routes', label: 'My Routes', icon: Truck },
+    { id: 'collections', label: "Today's Collections", icon: Trash2 },
+    { id: 'location', label: 'Current Location', icon: MapPin },
+    { id: 'report', label: 'Report Issue', icon: Package },
+    { id: 'schedule', label: 'Work Schedule', icon: Clock },
+    { id: 'completed', label: 'Completed Tasks', icon: CheckSquare },
+  ];
+
+  // Logout handler
+  const handleLogout = () => {
+    logout();
+  };
+
   return (
-    <DashboardLayout subtitle="Worker Dashboard">
+    <DashboardLayout
+      navItems={navItems}
+      activeNav={activeNav}
+      onNavClick={setActiveNav}
+      logo="Worker"
+      user={user}
+      onLogout={handleLogout}
+      pageTitle="Worker Dashboard"
+      pageSubtitle="Manage your routes and collections"
+    >
       {/* Dashboard Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <DashboardCard
@@ -93,4 +123,3 @@ const WorkerDashboard = () => {
 };
 
 export default WorkerDashboard;
-

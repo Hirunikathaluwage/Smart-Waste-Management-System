@@ -12,23 +12,74 @@ export const Input = ({ label, type = 'text', name, value, onChange, placeholder
       value={value}
       onChange={onChange}
       placeholder={placeholder}
-      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2"
+      style={{ '--tw-ring-color': '#4CBB17' }}
+      onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px rgba(76, 187, 23, 0.5)'}
+      onBlur={(e) => e.target.style.boxShadow = ''}
     />
   </div>
 );
 
-export const Button = ({ type = 'button', onClick, children, variant = 'primary', className = '' }) => {
-  const variants = {
-    primary: 'bg-emerald-600 text-white hover:bg-emerald-700',
-    secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300',
-    outline: 'border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-50'
+export const Button = ({ type = 'button', onClick, children, variant = 'primary', className = '', disabled = false }) => {
+  const getVariantStyles = (variant) => {
+    switch(variant) {
+      case 'primary':
+        return {
+          backgroundColor: '#4CBB17',
+          color: 'white',
+          border: 'none'
+        };
+      case 'secondary':
+        return {
+          backgroundColor: '#e5e7eb',
+          color: '#111827',
+          border: 'none'
+        };
+      case 'outline':
+        return {
+          backgroundColor: 'transparent',
+          color: '#4CBB17',
+          border: '2px solid #4CBB17'
+        };
+      default:
+        return {};
+    }
+  };
+
+  const getHoverColor = (variant) => {
+    switch(variant) {
+      case 'primary':
+        return '#3da612';
+      case 'secondary':
+        return '#d1d5db';
+      case 'outline':
+        return '#4CBB1710';
+      default:
+        return '';
+    }
   };
 
   return (
     <button
       type={type}
       onClick={onClick}
-      className={`px-6 py-2 rounded-lg font-medium transition-colors duration-200 ${variants[variant]} ${className}`}
+      disabled={disabled}
+      className={`px-6 py-2 rounded-lg font-medium transition-colors duration-200 ${className}`}
+      style={getVariantStyles(variant)}
+      onMouseEnter={(e) => {
+        if (!disabled) {
+          if (variant === 'outline') {
+            e.currentTarget.style.backgroundColor = getHoverColor(variant);
+          } else {
+            e.currentTarget.style.backgroundColor = getHoverColor(variant);
+          }
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!disabled) {
+          e.currentTarget.style.backgroundColor = variant === 'outline' ? 'transparent' : getVariantStyles(variant).backgroundColor;
+        }
+      }}
     >
       {children}
     </button>
@@ -49,11 +100,22 @@ export const UserTypeSelector = ({ selectedType, onTypeChange }) => {
             key={type}
             type="button"
             onClick={() => onTypeChange(type)}
-            className={`py-2 px-4 rounded-lg text-sm font-medium ${
+            className="py-2 px-4 rounded-lg text-sm font-medium transition-colors duration-200"
+            style={
               selectedType === type
-                ? 'bg-emerald-600 text-white'
-                : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-            }`}
+                ? { backgroundColor: '#4CBB17', color: 'white' }
+                : { backgroundColor: '#f3f4f6', color: '#111827' }
+            }
+            onMouseEnter={(e) => {
+              if (selectedType !== type) {
+                e.currentTarget.style.backgroundColor = '#e5e7eb';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (selectedType !== type) {
+                e.currentTarget.style.backgroundColor = '#f3f4f6';
+              }
+            }}
           >
             {type.charAt(0).toUpperCase() + type.slice(1)}
           </button>

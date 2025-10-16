@@ -1,18 +1,60 @@
-import DashboardLayout from '../../components/dashboard/DashboardLayout';
+import { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import DashboardLayout from '../../components/dashboard/AdminDashboardLayout';
 import DashboardCard from '../../components/dashboard/DashboardCard';
 import StatCard from '../../components/dashboard/StatCard';
 import ActionButton from '../../components/dashboard/ActionButton';
 import ActivityItem from '../../components/dashboard/ActivityItem';
+import { BarChart3, Package, Truck, Trash2, CheckSquare, Users } from 'lucide-react';
 
-/**
- * AdminDashboard Component
- * Follows Single Responsibility - only handles admin dashboard view
- * Follows DRY - uses shared components
- * Follows Open/Closed - easy to extend with new features
- */
 const AdminDashboard = () => {
+  const authContext = useAuth();
+  const [activeNav, setActiveNav] = useState('dashboard');
+
+  useEffect(() => {
+    console.log('=== AUTH CONTEXT DEBUG ===');
+    console.log('Full auth context:', authContext);
+    console.log('User:', authContext.user);
+    console.log('Logout function:', authContext.logout);
+    console.log('Logout type:', typeof authContext.logout);
+  }, [authContext]);
+
+  const navItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+    { id: 'reports', label: 'Generate Reports', icon: BarChart3 },
+    { id: 'pickups', label: 'Special Pickups', icon: Package },
+    { id: 'routes', label: 'Route Changes', icon: Truck },
+    { id: 'bins', label: 'Bin Requests', icon: Trash2 },
+    { id: 'approvals', label: 'Approvals', icon: CheckSquare },
+    { id: 'users', label: 'Manage Users', icon: Users },
+  ];
+
+  const handleLogout = () => {
+    console.log('=== LOGOUT BUTTON CLICKED ===');
+    console.log('About to call logout...');
+
+    if (authContext && authContext.logout) {
+      console.log('Calling authContext.logout()');
+      authContext.logout();
+      console.log('Logout called successfully');
+    } else {
+      console.error('ERROR: authContext or logout function is missing!');
+    }
+  };
+
+  console.log('AdminDashboard rendering - passing onLogout:', handleLogout);
+
   return (
-    <DashboardLayout subtitle="Admin Dashboard - System Analytics & Management">
+    <DashboardLayout
+      navItems={navItems}
+      activeNav={activeNav}
+      onNavClick={setActiveNav}
+      logo="Admin"
+      user={authContext.user}
+      onLogout={handleLogout}
+      pageTitle="Admin Dashboard"
+      pageSubtitle="System Analytics & Management"
+    >
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <StatCard
@@ -125,4 +167,3 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
-
