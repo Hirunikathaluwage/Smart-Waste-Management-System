@@ -9,6 +9,7 @@ import SignIn from './pages/auth/SignIn';
 import ResidentDashboard from './pages/resident/Dashboard';
 import WorkerDashboard from './pages/worker/Dashboard';
 import AdminDashboard from './pages/admin/Dashboard';
+import BinRequestsManagement from './pages/admin/BinRequestsManagement';
 import { ROLES } from './constants/roles';
 
 /**
@@ -75,6 +76,16 @@ function App() {
                             element={
                                 <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
                                     <AdminDashboard />
+                                </ProtectedRoute>
+                            }
+                        />
+
+                        {/* Admin - Bin Requests Management */}
+                        <Route
+                            path="/admin/bins"
+                            element={
+                                <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
+                                    <BinRequestsManagement />
                                 </ProtectedRoute>
                             }
                         />
