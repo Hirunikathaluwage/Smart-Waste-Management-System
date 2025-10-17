@@ -17,44 +17,72 @@ import locationService from '../../services/LocationService';
 // Simple SVG icons to avoid external dependencies - follows SRP for icon management
 const CheckCircleIcon = ({ className }) => (
   <svg className={className} fill="currentColor" viewBox="0 0 20 20">
-    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+    <path
+      fillRule="evenodd"
+      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+      clipRule="evenodd"
+    />
   </svg>
 );
 
 const ExclamationTriangleIcon = ({ className }) => (
   <svg className={className} fill="currentColor" viewBox="0 0 20 20">
-    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+    <path
+      fillRule="evenodd"
+      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+      clipRule="evenodd"
+    />
   </svg>
 );
 
 const XCircleIcon = ({ className }) => (
   <svg className={className} fill="currentColor" viewBox="0 0 20 20">
-    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+    <path
+      fillRule="evenodd"
+      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+      clipRule="evenodd"
+    />
   </svg>
 );
 
 const CloudSlashIcon = ({ className }) => (
   <svg className={className} fill="currentColor" viewBox="0 0 20 20">
-    <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clipRule="evenodd" />
+    <path
+      fillRule="evenodd"
+      d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
+      clipRule="evenodd"
+    />
     <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
   </svg>
 );
 
 const ClockIcon = ({ className }) => (
   <svg className={className} fill="currentColor" viewBox="0 0 20 20">
-    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+    <path
+      fillRule="evenodd"
+      d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+      clipRule="evenodd"
+    />
   </svg>
 );
 
 const ScaleIcon = ({ className }) => (
   <svg className={className} fill="currentColor" viewBox="0 0 20 20">
-    <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+    <path
+      fillRule="evenodd"
+      d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+      clipRule="evenodd"
+    />
   </svg>
 );
 
 const MapPinIcon = ({ className }) => (
   <svg className={className} fill="currentColor" viewBox="0 0 20 20">
-    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+    <path
+      fillRule="evenodd"
+      d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+      clipRule="evenodd"
+    />
   </svg>
 );
 
@@ -67,13 +95,13 @@ const TruckIcon = ({ className }) => (
 
 /**
  * Worker Collection Page - Handles waste collection recording
- * 
+ *
  * SOLID PRINCIPLES APPLIED:
  * - SRP (Single Responsibility): Only handles waste collection recording UI
  * - OCP (Open/Closed): Open for extension with new collection types, closed for modification
  * - DIP (Dependency Inversion): Depends on service abstractions, not concrete implementations
  * - ISP (Interface Segregation): Focused collection interface without unnecessary dependencies
- * 
+ *
  * CODE SMELLS AVOIDED:
  * - No God class: Focused only on collection recording
  * - No duplicate code: Reusable feedback components
@@ -82,22 +110,25 @@ const TruckIcon = ({ className }) => (
  */
 const CollectionPage = () => {
   // State management following SRP - each state has single responsibility
-  const [binId, setBinId] = useState('');
+  const [binId, setBinId] = useState("");
   const [feedback, setFeedback] = useState(null);
   const [isOffline, setIsOffline] = useState(false);
   const [collectedBins, setCollectedBins] = useState([]);
-  const [routeProgress, setRouteProgress] = useState({ collected: 0, total: 25 });
+  const [routeProgress, setRouteProgress] = useState({
+    collected: 0,
+    total: 25,
+  });
   const [totalWeight, setTotalWeight] = useState(0);
-  const [elapsedTime, setElapsedTime] = useState('0h 0m');
+  const [elapsedTime, setElapsedTime] = useState("0h 0m");
   const [sensorData, setSensorData] = useState(null);
   const [showManualEntry, setShowManualEntry] = useState(false);
   const [manualWeight, setManualWeight] = useState(25);
-  const [wasteType, setWasteType] = useState('General');
+  const [wasteType, setWasteType] = useState("General");
   const [showSummary, setShowSummary] = useState(false);
   const [availableBins, setAvailableBins] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [workerId] = useState('WORKER-001'); // Mock worker ID for demo
+  const [workerId] = useState("WORKER-001"); // Mock worker ID for demo
   const [currentLocation, setCurrentLocation] = useState(null);
   const [locationError, setLocationError] = useState(null);
   const [isLocationTracking, setIsLocationTracking] = useState(false);
@@ -118,41 +149,41 @@ const CollectionPage = () => {
    */
   const getBinStatusStyle = (status) => {
     switch (status) {
-      case 'ACTIVE':
+      case "ACTIVE":
         return {
-          bg: 'bg-green-100',
-          text: 'text-green-800',
-          icon: '🟢'
+          bg: "bg-green-100",
+          text: "text-green-800",
+          icon: "🟢",
         };
-      case 'COLLECTED':
+      case "COLLECTED":
         return {
-          bg: 'bg-blue-100',
-          text: 'text-blue-800',
-          icon: '✅'
+          bg: "bg-blue-100",
+          text: "text-blue-800",
+          icon: "✅",
         };
-      case 'DAMAGED':
+      case "DAMAGED":
         return {
-          bg: 'bg-red-100',
-          text: 'text-red-800',
-          icon: '🔴'
+          bg: "bg-red-100",
+          text: "text-red-800",
+          icon: "🔴",
         };
-      case 'MAINTENANCE':
+      case "MAINTENANCE":
         return {
-          bg: 'bg-yellow-100',
-          text: 'text-yellow-800',
-          icon: '⚠️'
+          bg: "bg-yellow-100",
+          text: "text-yellow-800",
+          icon: "⚠️",
         };
-      case 'LOST':
+      case "LOST":
         return {
-          bg: 'bg-gray-100',
-          text: 'text-gray-800',
-          icon: '❓'
+          bg: "bg-gray-100",
+          text: "text-gray-800",
+          icon: "❓",
         };
       default:
         return {
-          bg: 'bg-gray-100',
-          text: 'text-gray-800',
-          icon: '❓'
+          bg: "bg-gray-100",
+          text: "text-gray-800",
+          icon: "❓",
         };
     }
   };
@@ -165,9 +196,9 @@ const CollectionPage = () => {
     try {
       const bins = await binService.getAllBins();
       setAvailableBins(bins);
-      setRouteProgress(prev => ({ ...prev, total: bins.length }));
+      setRouteProgress((prev) => ({ ...prev, total: bins.length }));
     } catch (err) {
-      console.error('Failed to refresh bin data:', err);
+      console.error("Failed to refresh bin data:", err);
       // Don't show error to user for refresh failures
     }
   };
@@ -177,11 +208,11 @@ const CollectionPage = () => {
     const loadData = async () => {
       try {
         setLoading(true);
-        
+
         // Load bins
         const bins = await binService.getAllBins();
         setAvailableBins(bins);
-        
+
         // Load today's collection records
         const todayCollections = await collectionService.getTodayCollectionRecords(workerId);
         
@@ -217,12 +248,12 @@ const CollectionPage = () => {
         // Calculate total weight from all collections
         const totalWeightFromSaved = uniqueCollections.reduce((sum, record) => sum + (record.weight || 0), 0);
         setTotalWeight(totalWeightFromSaved);
-        
+
         setError(null);
       } catch (err) {
-        console.error('Failed to load data:', err);
-        setError('Failed to load data from server');
-        
+        console.error("Failed to load data:", err);
+        setError("Failed to load data from server");
+
         // Fallback to mock data if backend is unavailable
         const sessionResetBins = JSON.parse(sessionStorage.getItem('sessionResetBins') || '[]');
         const mockBins = [
@@ -248,7 +279,11 @@ const CollectionPage = () => {
   // Update route progress when collected bins change
   useEffect(() => {
     // Use total bins for progress calculation
-    setRouteProgress(prev => ({ ...prev, collected: collectedBins.length, total: availableBins.length }));
+    setRouteProgress((prev) => ({
+      ...prev,
+      collected: collectedBins.length,
+      total: availableBins.length,
+    }));
   }, [collectedBins, availableBins]);
 
   // GPS Location Tracking - follows SRP for location management
@@ -257,8 +292,12 @@ const CollectionPage = () => {
       try {
         // Check if we should request permission
         const availability = await locationService.checkLocationAvailability();
-        
-        if (availability.available && availability.canEnable && !hasRequestedPermission) {
+
+        if (
+          availability.available &&
+          availability.canEnable &&
+          !hasRequestedPermission
+        ) {
           // Show permission dialog instead of directly requesting
           setShowGPSPermissionDialog(true);
           setHasRequestedPermission(true);
@@ -269,8 +308,8 @@ const CollectionPage = () => {
           setLocationError(null);
         }
       } catch (error) {
-        console.warn('Failed to initialize location:', error);
-        setLocationError('Location services unavailable');
+        console.warn("Failed to initialize location:", error);
+        setLocationError("Location services unavailable");
       }
     };
 
@@ -284,7 +323,7 @@ const CollectionPage = () => {
         setCurrentLocation(location);
         setLocationError(null);
       });
-      
+
       return () => {
         if (watchId) {
           locationService.stopTracking();
@@ -342,10 +381,10 @@ const CollectionPage = () => {
    * @returns {string} Route name or fallback text
    */
   const getCurrentRouteName = () => {
-    const savedRouteId = localStorage.getItem('selectedRouteId');
-    if (!savedRouteId) return 'No Route Selected';
+    const savedRouteId = localStorage.getItem("selectedRouteId");
+    if (!savedRouteId) return "No Route Selected";
     const route = RouteConfigService.getRouteById(savedRouteId);
-    return route ? route.name : 'Invalid Route';
+    return route ? route.name : "Invalid Route";
   };
 
   /**
@@ -358,8 +397,8 @@ const CollectionPage = () => {
       setLocationError(null);
       setShowGPSPermissionDialog(false);
     } catch (error) {
-      console.error('Failed to get location after permission granted:', error);
-      setLocationError('Failed to get location');
+      console.error("Failed to get location after permission granted:", error);
+      setLocationError("Failed to get location");
     }
   };
 
@@ -381,7 +420,7 @@ const CollectionPage = () => {
       setShowGPSPermissionDialog(true);
       return;
     }
-    
+
     setIsLocationTracking(!isLocationTracking);
   };
 
@@ -397,8 +436,8 @@ const CollectionPage = () => {
       setCurrentLocation(location);
       setLocationError(null);
     } catch (error) {
-      console.error('Failed to refresh location:', error);
-      setLocationError('Failed to refresh location. Please try again.');
+      console.error("Failed to refresh location:", error);
+      setLocationError("Failed to refresh location. Please try again.");
     } finally {
       setIsRefreshingLocation(false);
     }
@@ -412,7 +451,8 @@ const CollectionPage = () => {
   const getLocationQualityIndicator = (location) => {
     if (!location) return null;
 
-    const quality = location.quality || locationService.getLocationQuality(location.accuracy);
+    const quality =
+      location.quality || locationService.getLocationQuality(location.accuracy);
     const color = locationService.getLocationQualityColor(quality);
     const description = locationService.getLocationQualityDescription(quality);
 
@@ -420,36 +460,43 @@ const CollectionPage = () => {
       quality,
       color,
       description,
-      accuracy: Math.round(location.accuracy)
+      accuracy: Math.round(location.accuracy),
     };
   };
-
 
   // Bin scanning handler - follows SRP for scan processing
   const handleBinScan = async () => {
     if (!binId.trim()) {
       setFeedback({
-        type: 'error',
-        message: 'Please enter a Bin ID',
-        options: []
+        type: "error",
+        message: "Please enter a Bin ID",
+        options: [],
       });
-      playFeedbackSound('error');
+      playFeedbackSound("error");
       return;
     }
 
-    const bin = availableBins.find(b => b.binId === binId.toUpperCase());
-    
+    const bin = availableBins.find((b) => b.binId === binId.toUpperCase());
+
     if (!bin) {
       setFeedback({
-        type: 'error',
-        message: 'Invalid Bin ID - Not Registered',
+        type: "error",
+        message: "Invalid Bin ID - Not Registered",
         options: [
-          { text: 'Retry Scan', type: 'secondary', onClick: () => setBinId('') },
-          { text: 'Report Issue', type: 'secondary', onClick: () => console.log('Report issue') },
-          { text: 'Skip', type: 'secondary', onClick: () => setBinId('') }
-        ]
+          {
+            text: "Retry Scan",
+            type: "secondary",
+            onClick: () => setBinId(""),
+          },
+          {
+            text: "Report Issue",
+            type: "secondary",
+            onClick: () => console.log("Report issue"),
+          },
+          { text: "Skip", type: "secondary", onClick: () => setBinId("") },
+        ],
       });
-      playFeedbackSound('error');
+      playFeedbackSound("error");
       return;
     }
 
@@ -462,36 +509,46 @@ const CollectionPage = () => {
    * @param {Object} bin - The bin object to collect
    */
   const proceedWithCollection = async (bin) => {
-
     // Check for duplicate scan using backend service
     try {
-      const alreadyCollectedToday = await collectionService.isBinAlreadyCollectedToday(binId.toUpperCase());
+      const alreadyCollectedToday =
+        await collectionService.isBinAlreadyCollectedToday(binId.toUpperCase());
       if (alreadyCollectedToday) {
         setFeedback({
-          type: 'warning',
+          type: "warning",
           message: `This bin was already collected today`,
           options: [
-            { text: 'Cancel', type: 'secondary', onClick: () => setBinId('') },
-            { text: 'Override with Reason', type: 'primary', onClick: () => handleOverrideCollection(bin) }
-          ]
+            { text: "Cancel", type: "secondary", onClick: () => setBinId("") },
+            {
+              text: "Override with Reason",
+              type: "primary",
+              onClick: () => handleOverrideCollection(bin),
+            },
+          ],
         });
-        playFeedbackSound('warning');
+        playFeedbackSound("warning");
         return;
       }
     } catch (error) {
-      console.error('Failed to check duplicate collection:', error);
+      console.error("Failed to check duplicate collection:", error);
       // Fallback to local check
-      const alreadyCollected = collectedBins.find(cb => cb.binId === binId.toUpperCase());
+      const alreadyCollected = collectedBins.find(
+        (cb) => cb.binId === binId.toUpperCase()
+      );
       if (alreadyCollected) {
         setFeedback({
-          type: 'warning',
+          type: "warning",
           message: `This bin was already collected today at ${alreadyCollected.timestamp}`,
           options: [
-            { text: 'Cancel', type: 'secondary', onClick: () => setBinId('') },
-            { text: 'Override with Reason', type: 'primary', onClick: () => handleOverrideCollection(bin) }
-          ]
+            { text: "Cancel", type: "secondary", onClick: () => setBinId("") },
+            {
+              text: "Override with Reason",
+              type: "primary",
+              onClick: () => handleOverrideCollection(bin),
+            },
+          ],
         });
-        playFeedbackSound('warning');
+        playFeedbackSound("warning");
         return;
       }
     }
@@ -502,20 +559,26 @@ const CollectionPage = () => {
     
     if (shouldSimulateSensorFailure) {
       setFeedback({
-        type: 'warning',
-        message: 'Sensor Error - Switch to Manual Entry',
+        type: "warning",
+        message: "Sensor Error - Switch to Manual Entry",
         options: [
-          { text: 'Proceed to Manual Entry', type: 'primary', onClick: () => setShowManualEntry(true) }
-        ]
+          {
+            text: "Proceed to Manual Entry",
+            type: "primary",
+            onClick: () => setShowManualEntry(true),
+          },
+        ],
       });
-      playFeedbackSound('warning');
+      playFeedbackSound("warning");
       return;
     }
 
     // Successful collection - use mock IoT sensor service
-    const sensorData = mockIoTSensorService.generateSensorData(binId.toUpperCase());
+    const sensorData = mockIoTSensorService.generateSensorData(
+      binId.toUpperCase()
+    );
     setSensorData(sensorData);
-    
+
     // Prepare collection data for backend
     const collectionData = {
       binId: binId.toUpperCase(),
@@ -525,18 +588,20 @@ const CollectionPage = () => {
       weight: sensorData.weight,
       fillLevel: sensorData.fillLevel,
       wasteType: sensorData.wasteType,
-      status: 'COLLECTED',
+      status: "COLLECTED",
       sensorData: {
         temperature: sensorData.temperature,
         batteryLevel: sensorData.batteryLevel,
-        signalStrength: sensorData.signalStrength
-      }
+        signalStrength: sensorData.signalStrength,
+      },
     };
 
     try {
       // Save to backend
-      const savedRecord = await collectionService.createCollectionRecord(collectionData);
-      
+      const savedRecord = await collectionService.createCollectionRecord(
+        collectionData
+      );
+
       // Update local state
       const localCollection = {
         binId: binId.toUpperCase(),
@@ -544,8 +609,8 @@ const CollectionPage = () => {
         timestamp: new Date().toLocaleString(),
         weight: sensorData.weight,
         fillLevel: sensorData.fillLevel,
-        status: 'Collected',
-        reason: null
+        status: "Collected",
+        reason: null,
       };
 
       setCollectedBins(prev => [...prev, localCollection]);
@@ -558,19 +623,19 @@ const CollectionPage = () => {
       localStorage.setItem('localCollections', JSON.stringify(updatedCollections));
       
       setFeedback({
-        type: 'success',
-        message: '✓ Collection Recorded and Saved Successfully',
-        options: []
+        type: "success",
+        message: "✓ Collection Recorded and Saved Successfully",
+        options: [],
       });
-      
-      playFeedbackSound('success');
-      setBinId('');
-      
+
+      playFeedbackSound("success");
+      setBinId("");
+
       // Refresh bin data to show updated status
       await refreshBinData();
     } catch (error) {
-      console.error('Failed to save collection:', error);
-      
+      console.error("Failed to save collection:", error);
+
       // Still update local state for demo purposes
       const localCollection = {
         binId: binId.toUpperCase(),
@@ -578,8 +643,8 @@ const CollectionPage = () => {
         timestamp: new Date().toLocaleString(),
         weight: sensorData.weight,
         fillLevel: sensorData.fillLevel,
-        status: 'Collected',
-        reason: null
+        status: "Collected",
+        reason: null,
       };
 
       setCollectedBins(prev => [...prev, localCollection]);
@@ -592,14 +657,14 @@ const CollectionPage = () => {
       localStorage.setItem('localCollections', JSON.stringify(updatedCollections));
       
       setFeedback({
-        type: 'success',
-        message: '✓ Collection Recorded (Saved Locally)',
-        options: []
+        type: "success",
+        message: "✓ Collection Recorded (Saved Locally)",
+        options: [],
       });
-      
-      playFeedbackSound('success');
-      setBinId('');
-      
+
+      playFeedbackSound("success");
+      setBinId("");
+
       // Try to refresh bin data even in fallback case
       await refreshBinData();
     }
@@ -614,21 +679,21 @@ const CollectionPage = () => {
       timestamp: new Date().toLocaleString(),
       weight: sensorData.weight,
       fillLevel: sensorData.fillLevel,
-      status: 'Override Collection',
-      reason: 'Re-collection requested'
+      status: "Override Collection",
+      reason: "Re-collection requested",
     };
 
-    setCollectedBins(prev => [...prev, collection]);
-    setTotalWeight(prev => prev + sensorData.weight);
-    setRouteProgress(prev => ({ ...prev, collected: prev.collected + 1 }));
-    
+    setCollectedBins((prev) => [...prev, collection]);
+    setTotalWeight((prev) => prev + sensorData.weight);
+    setRouteProgress((prev) => ({ ...prev, collected: prev.collected + 1 }));
+
     setFeedback({
-      type: 'success',
-      message: '✓ Override Collection Recorded',
-      options: []
+      type: "success",
+      message: "✓ Override Collection Recorded",
+      options: [],
     });
-    
-    setBinId('');
+
+    setBinId("");
   };
 
   // Manual entry handler - follows SRP for manual data entry
@@ -639,9 +704,9 @@ const CollectionPage = () => {
       location: bin?.address || 'Unknown',
       timestamp: new Date().toLocaleString(),
       weight: manualWeight,
-      fillLevel: 'Manual Entry',
-      status: 'Manual Entry - Sensor Failed',
-      reason: 'Sensor failure'
+      fillLevel: "Manual Entry",
+      status: "Manual Entry - Sensor Failed",
+      reason: "Sensor failure",
     };
 
     setCollectedBins(prev => [...prev, collection]);
@@ -654,18 +719,23 @@ const CollectionPage = () => {
     localStorage.setItem('localCollections', JSON.stringify(updatedCollections));
     
     setFeedback({
-      type: 'success',
-      message: '✓ Manual Collection Recorded',
-      options: []
+      type: "success",
+      message: "✓ Manual Collection Recorded",
+      options: [],
     });
-    
+
     setShowManualEntry(false);
-    setBinId('');
+    setBinId("");
   };
 
   // Mark as missed handler - follows SRP for missed bin handling
   const handleMarkAsMissed = () => {
-    const reasons = ['Blocked - Cannot access bin', 'Damaged - Bin is broken', 'Overflowing - Bin exceeds capacity', 'Not Present - Bin not at location'];
+    const reasons = [
+      "Blocked - Cannot access bin",
+      "Damaged - Bin is broken",
+      "Overflowing - Bin exceeds capacity",
+      "Not Present - Bin not at location",
+    ];
     const reason = reasons[Math.floor(Math.random() * reasons.length)];
     
     const bin = availableBins.find(b => b.binId === binId.toUpperCase());
@@ -674,9 +744,9 @@ const CollectionPage = () => {
       location: bin?.address || 'Unknown',
       timestamp: new Date().toLocaleString(),
       weight: 0,
-      fillLevel: 'N/A',
-      status: 'Missed',
-      reason: reason
+      fillLevel: "N/A",
+      status: "Missed",
+      reason: reason,
     };
 
     setCollectedBins(prev => [...prev, missedBin]);
@@ -688,12 +758,12 @@ const CollectionPage = () => {
     localStorage.setItem('localCollections', JSON.stringify(updatedCollections));
     
     setFeedback({
-      type: 'warning',
+      type: "warning",
       message: `Bin marked as missed: ${reason}`,
-      options: []
+      options: [],
     });
-    
-    setBinId('');
+
+    setBinId("");
   };
 
   // Reset bin handler - follows SRP for reset functionality
@@ -790,7 +860,9 @@ const CollectionPage = () => {
   };
 
   // Progress calculation - follows SRP for progress tracking
-  const progressPercentage = Math.round((routeProgress.collected / routeProgress.total) * 100);
+  const progressPercentage = Math.round(
+    (routeProgress.collected / routeProgress.total) * 100
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -802,7 +874,9 @@ const CollectionPage = () => {
               <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
                 <TruckIcon className="w-6 h-6 text-gray-600" />
               </div>
-              <h1 className="text-2xl font-bold text-gray-900">Waste Collection</h1>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Waste Collection
+              </h1>
             </div>
             {isOffline && (
               <div className="flex items-center space-x-2 text-yellow-600">
@@ -833,18 +907,20 @@ const CollectionPage = () => {
               <span className="text-red-800 font-medium">Connection Error</span>
             </div>
             <p className="text-red-700 mt-1">{error}</p>
-            <p className="text-red-600 text-sm mt-2">Using fallback data for demonstration.</p>
+            <p className="text-red-600 text-sm mt-2">
+              Using fallback data for demonstration.
+            </p>
           </div>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
           {/* Main Collection Area */}
           <div className="lg:col-span-2 space-y-6">
-            
             {/* Progress Indicators */}
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Collection Progress</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Collection Progress
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <ProgressIndicator
                   label="Route Progress"
@@ -878,7 +954,9 @@ const CollectionPage = () => {
 
             {/* Bin Scanning Section */}
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Scan Bin</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Scan Bin
+              </h2>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -890,7 +968,7 @@ const CollectionPage = () => {
                     onChange={(e) => setBinId(e.target.value)}
                     placeholder="Enter Bin ID (e.g., BIN-001)"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-lg"
-                    onKeyPress={(e) => e.key === 'Enter' && handleBinScan()}
+                    onKeyPress={(e) => e.key === "Enter" && handleBinScan()}
                   />
                 </div>
                 <div className="flex space-x-3">
@@ -912,17 +990,19 @@ const CollectionPage = () => {
 
             {/* Feedback Display */}
             {feedback && (
-              <FeedbackDisplay 
-                type={feedback.type} 
-                message={feedback.message} 
-                options={feedback.options} 
+              <FeedbackDisplay
+                type={feedback.type}
+                message={feedback.message}
+                options={feedback.options}
               />
             )}
 
             {/* Manual Entry Section */}
             {showManualEntry && (
               <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Manual Entry</h2>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                  Manual Entry
+                </h2>
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -933,7 +1013,9 @@ const CollectionPage = () => {
                       min="5"
                       max="50"
                       value={manualWeight}
-                      onChange={(e) => setManualWeight(parseInt(e.target.value))}
+                      onChange={(e) =>
+                        setManualWeight(parseInt(e.target.value))
+                      }
                       className="w-full"
                     />
                     <div className="flex justify-between text-sm text-gray-600 mt-1">
@@ -974,9 +1056,7 @@ const CollectionPage = () => {
             )}
 
             {/* Sensor Data Display */}
-            {sensorData && (
-              <SensorDataDisplay sensorData={sensorData} />
-            )}
+            {sensorData && <SensorDataDisplay sensorData={sensorData} />}
 
             {/* Collected Bins Table */}
             <CollectionTable 
@@ -988,7 +1068,9 @@ const CollectionPage = () => {
             {showNavigationMap && (
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-gray-900">Navigation Map</h2>
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Navigation Map
+                  </h2>
                   <button
                     onClick={() => setShowNavigationMap(false)}
                     className="text-gray-500 hover:text-gray-700"
@@ -997,13 +1079,13 @@ const CollectionPage = () => {
                   </button>
                 </div>
                 <NavigationMap
-                  selectedRouteId={localStorage.getItem('selectedRouteId')}
+                  selectedRouteId={localStorage.getItem("selectedRouteId")}
                   collectedBins={collectedBins}
                   currentLocation={currentLocation}
                   height="500px"
                   showNavigation={true}
                   onBinClick={(bin) => {
-                    console.log('Bin clicked:', bin);
+                    console.log("Bin clicked:", bin);
                   }}
                 />
               </div>
@@ -1056,52 +1138,76 @@ const CollectionPage = () => {
               </button>
             </div>
 
-
             {/* Location Tracking Controls */}
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Location Tracking</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Location Tracking
+              </h2>
               <div className="space-y-4">
                 {/* Location Status */}
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">GPS Status:</span>
                   <div className="flex items-center space-x-2">
-                    <div className={`w-2 h-2 rounded-full ${currentLocation ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                    <div
+                      className={`w-2 h-2 rounded-full ${
+                        currentLocation ? "bg-green-500" : "bg-red-500"
+                      }`}
+                    ></div>
                     <span className="text-sm font-medium">
-                      {currentLocation ? 'Active' : 'Inactive'}
+                      {currentLocation ? "Active" : "Inactive"}
                     </span>
                   </div>
                 </div>
 
                 {/* GPS Quality Indicator */}
-                {currentLocation && (() => {
-                  const qualityInfo = getLocationQualityIndicator(currentLocation);
-                  return (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">GPS Quality:</span>
-                        <div className="flex items-center space-x-2">
-                          <div className={`w-2 h-2 rounded-full ${
-                            qualityInfo.quality === 'excellent' ? 'bg-green-500' :
-                            qualityInfo.quality === 'good' ? 'bg-blue-500' :
-                            qualityInfo.quality === 'fair' ? 'bg-yellow-500' : 'bg-red-500'
-                          }`}></div>
-                          <span className={`text-sm font-medium ${qualityInfo.color}`}>
-                            {qualityInfo.quality.charAt(0).toUpperCase() + qualityInfo.quality.slice(1)}
+                {currentLocation &&
+                  (() => {
+                    const qualityInfo =
+                      getLocationQualityIndicator(currentLocation);
+                    return (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600">
+                            GPS Quality:
+                          </span>
+                          <div className="flex items-center space-x-2">
+                            <div
+                              className={`w-2 h-2 rounded-full ${
+                                qualityInfo.quality === "excellent"
+                                  ? "bg-green-500"
+                                  : qualityInfo.quality === "good"
+                                  ? "bg-blue-500"
+                                  : qualityInfo.quality === "fair"
+                                  ? "bg-yellow-500"
+                                  : "bg-red-500"
+                              }`}
+                            ></div>
+                            <span
+                              className={`text-sm font-medium ${qualityInfo.color}`}
+                            >
+                              {qualityInfo.quality.charAt(0).toUpperCase() +
+                                qualityInfo.quality.slice(1)}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600">
+                            Accuracy:
+                          </span>
+                          <span className="text-sm font-medium">
+                            {qualityInfo.accuracy}m
                           </span>
                         </div>
+
+                        <div className="bg-gray-50 rounded-lg p-2">
+                          <p className="text-xs text-gray-600">
+                            {qualityInfo.description}
+                          </p>
+                        </div>
                       </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Accuracy:</span>
-                        <span className="text-sm font-medium">{qualityInfo.accuracy}m</span>
-                      </div>
-                      
-                      <div className="bg-gray-50 rounded-lg p-2">
-                        <p className="text-xs text-gray-600">{qualityInfo.description}</p>
-                      </div>
-                    </div>
-                  );
-                })()}
+                    );
+                  })()}
 
                 {/* Location Error */}
                 {locationError && (
@@ -1115,27 +1221,31 @@ const CollectionPage = () => {
                   <button
                     onClick={handleLocationTrackingToggle}
                     className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${
-                      isLocationTracking 
-                        ? 'bg-red-100 text-red-700 hover:bg-red-200' 
-                        : 'bg-green-100 text-green-700 hover:bg-green-200'
+                      isLocationTracking
+                        ? "bg-red-100 text-red-700 hover:bg-red-200"
+                        : "bg-green-100 text-green-700 hover:bg-green-200"
                     }`}
                   >
-                    {isLocationTracking ? 'Stop Tracking' : 'Start Tracking'}
+                    {isLocationTracking ? "Stop Tracking" : "Start Tracking"}
                   </button>
-                  
+
                   <button
                     onClick={handleLocationRefresh}
                     disabled={isRefreshingLocation}
                     className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
                   >
-                    {isRefreshingLocation ? 'Refreshing...' : 'Refresh Location'}
+                    {isRefreshingLocation
+                      ? "Refreshing..."
+                      : "Refresh Location"}
                   </button>
-                  
+
                   <button
                     onClick={() => setShowNavigationMap(!showNavigationMap)}
                     className="w-full bg-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-700 transition-colors"
                   >
-                    {showNavigationMap ? 'Hide Navigation Map' : 'Show Navigation Map'}
+                    {showNavigationMap
+                      ? "Hide Navigation Map"
+                      : "Show Navigation Map"}
                   </button>
                 </div>
               </div>
@@ -1143,17 +1253,24 @@ const CollectionPage = () => {
 
             {/* Available Bins Status Display */}
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Available Bins</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Available Bins
+              </h2>
               <div className="space-y-2">
                 {availableBins.map((bin) => {
                   const statusStyle = getBinStatusStyle(bin.status);
                   return (
-                    <div key={bin.binId} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                    <div
+                      key={bin.binId}
+                      className="flex justify-between items-center p-2 bg-gray-50 rounded"
+                    >
                       <div className="flex items-center space-x-2">
                         <span className="text-sm font-medium">{bin.binId}</span>
                         <span className="text-xs">{statusStyle.icon}</span>
                       </div>
-                      <span className={`text-xs px-2 py-1 rounded ${statusStyle.bg} ${statusStyle.text}`}>
+                      <span
+                        className={`text-xs px-2 py-1 rounded ${statusStyle.bg} ${statusStyle.text}`}
+                      >
                         {bin.status}
                       </span>
                     </div>

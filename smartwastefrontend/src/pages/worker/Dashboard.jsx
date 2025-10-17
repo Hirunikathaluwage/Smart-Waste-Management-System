@@ -264,7 +264,7 @@ const WorkerDashboard = () => {
         return <DashboardOverview />;
       case 'routes':
         return <PickupRoutesPage />;
-      case 'collection':
+      case "collection":
         return <CollectionPage />;
       case 'schedule':
         return <WorkSchedule />;

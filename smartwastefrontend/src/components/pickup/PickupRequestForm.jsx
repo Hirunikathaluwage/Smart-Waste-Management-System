@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import pickupRequestService from '../../services/pickupRequestService';
 import MapLocationPicker from './MapLocationPicker';
 import StripePaymentForm from '../payment/StripePaymentForm';
+import { useAuth } from '../../context/AuthContext';
 
 const PickupRequestForm = ({ onSuccess, onCancel }) => {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     wasteType: '',
     itemDescription: '',
@@ -122,9 +124,10 @@ const PickupRequestForm = ({ onSuccess, onCancel }) => {
     setFormData(prev => ({
       ...prev,
       paymentMethod: 'Card',
-      transactionId: paymentResult.paymentMethodId
+      transactionId: paymentResult.paymentMethodId,
+      paymentIntentId: paymentResult.paymentIntentId,
+      paymentStatus: 'COMPLETED'
     }));
-    setShowPaymentForm(false);
     setPaymentProcessing(false);
     
     // Show success message
@@ -134,7 +137,13 @@ const PickupRequestForm = ({ onSuccess, onCancel }) => {
   const handlePaymentError = (error) => {
     console.error('Payment failed:', error);
     setPaymentProcessing(false);
-    alert('Payment failed. Please try again or choose a different payment method.');
+    
+    // Show detailed error message
+    const errorMessage = error.message || 'Payment failed. Please try again or choose a different payment method.';
+    alert(`Payment Error: ${errorMessage}`);
+    
+    // Don't clear the form - let user retry with different card or method
+    console.log('Payment failed, form remains filled for retry');
   };
 
   const validateForm = () => {
@@ -152,7 +161,16 @@ const PickupRequestForm = ({ onSuccess, onCancel }) => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    // If called from form, prevent default
+    if (e && e.preventDefault) {
+      e.preventDefault();
+    }
+    
+    // Don't submit if payment form is active and processing
+    if (showPaymentForm && paymentProcessing) {
+      console.log('Payment form is active, preventing main form submission');
+      return;
+    }
     
     if (!validateForm()) {
       return;
@@ -393,78 +411,89 @@ const PickupRequestForm = ({ onSuccess, onCancel }) => {
               />
             </div>
           </div>
-
-          {/* Stripe Payment Form */}
-          {showPaymentForm && feeCalculation && (
-            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <h4 className="text-lg font-semibold text-blue-800 mb-4">💳 Credit/Debit Card Payment</h4>
-              <StripePaymentForm
-                amount={feeCalculation.finalAmount}
-                onPaymentSuccess={handlePaymentSuccess}
-                onPaymentError={handlePaymentError}
-                isLoading={paymentProcessing}
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Fee Calculation Display */}
-        {feeCalculation && (
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold text-blue-800 mb-2">Fee Calculation</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span>Base Amount:</span>
-                <span>${feeCalculation.baseAmount?.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Urgency Fee:</span>
-                <span>${feeCalculation.urgencyFee?.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Total Amount:</span>
-                <span>${feeCalculation.totalAmount?.toFixed(2)}</span>
-              </div>
-              {feeCalculation.rewardPointsUsed > 0 && (
-                <div className="flex justify-between">
-                  <span>Reward Points Used:</span>
-                  <span>-${(feeCalculation.rewardPointsUsed * 0.01).toFixed(2)}</span>
-                </div>
-              )}
-              <div className="flex justify-between font-semibold text-lg border-t pt-2">
-                <span>Final Amount:</span>
-                <span>${feeCalculation.finalAmount?.toFixed(2)}</span>
-              </div>
-            </div>
-            {isCalculating && <p className="text-blue-600 text-sm mt-2">Calculating fees...</p>}
-          </div>
-        )}
-
-        {/* Error Messages */}
-        {errors.submit && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {errors.submit}
-          </div>
-        )}
-
-        {/* Action Buttons */}
-        <div className="flex justify-end space-x-4">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting || isCalculating}
-            className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSubmitting ? 'Submitting...' : 'Submit Request'}
-          </button>
         </div>
       </form>
+
+      {/* Fee Calculation Display - Outside main form */}
+      {feeCalculation && (
+        <div className="bg-blue-50 p-4 rounded-lg">
+          <h3 className="text-lg font-semibold text-blue-800 mb-2">Fee Calculation</h3>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span>Base Amount:</span>
+              <span>${feeCalculation.baseAmount?.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Urgency Fee:</span>
+              <span>${feeCalculation.urgencyFee?.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Total Amount:</span>
+              <span>${feeCalculation.totalAmount?.toFixed(2)}</span>
+            </div>
+            {feeCalculation.rewardPointsUsed > 0 && (
+              <div className="flex justify-between">
+                <span>Reward Points Used:</span>
+                <span>-${(feeCalculation.rewardPointsUsed * 0.01).toFixed(2)}</span>
+              </div>
+            )}
+            <div className="flex justify-between font-semibold text-lg border-t pt-2">
+              <span>Final Amount:</span>
+              <span>${feeCalculation.finalAmount?.toFixed(2)}</span>
+            </div>
+          </div>
+          {isCalculating && <p className="text-blue-600 text-sm mt-2">Calculating fees...</p>}
+        </div>
+      )}
+
+      {/* Stripe Payment Form - Outside main form to prevent conflicts */}
+      {showPaymentForm && feeCalculation && (
+        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <h4 className="text-lg font-semibold text-blue-800 mb-4">💳 Credit/Debit Card Payment</h4>
+          <StripePaymentForm
+            amount={feeCalculation.finalAmount}
+            onPaymentSuccess={handlePaymentSuccess}
+            onPaymentError={handlePaymentError}
+            isLoading={paymentProcessing}
+            pickupData={{
+              customerName: user?.name || 'Customer',
+              customerEmail: user?.email || '',
+              address: `${formData.address}, ${formData.city}, ${formData.postalCode}`,
+              wasteType: formData.wasteType,
+              itemDescription: formData.itemDescription,
+              pickupType: formData.pickupType,
+              preferredDateTime: formData.preferredDateTime,
+              estimatedWeight: formData.estimatedWeight
+            }}
+          />
+        </div>
+      )}
+
+      {/* Error Messages */}
+      {errors.submit && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+          {errors.submit}
+        </div>
+      )}
+
+      {/* Action Buttons */}
+      <div className="flex justify-end space-x-4 mt-6">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={isSubmitting || isCalculating}
+          className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isSubmitting ? 'Submitting...' : 'Submit Request'}
+        </button>
+      </div>
     </div>
   );
 };
