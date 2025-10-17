@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Menu, X, BarChart3, Package, Truck, Trash2, CheckSquare, Bell, LogOut } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 /**
  * Complete Dashboard Layout with Sidebar and Top Navigation
  */
 const DashboardLayout = ({
+
   navItems = [],
   activeNav = '',
   onNavClick = () => {},
@@ -17,7 +19,6 @@ const DashboardLayout = ({
   children
 }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
@@ -110,16 +111,16 @@ const DashboardLayout = ({
 
               {/* User Profile */}
               <div className="flex items-center space-x-3 px-3 py-2 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer">
-                {user?.avatar ? (
+                {user.avatar ? (
                   <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full" />
                 ) : (
                   <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: '#4CBB17' }}>
                     <span className="text-white font-semibold text-sm">
-                      {user?.name?.charAt(0)?.toUpperCase() || 'A'}
+                      {user.name.charAt(0).toUpperCase()}
                     </span>
                   </div>
                 )}
-                <span className="text-sm font-medium text-gray-700">{user?.name || 'Admin'}</span>
+                <span className="text-sm font-medium text-gray-700">{user.name}</span>
               </div>
 
               {/* Logout Button */}
@@ -127,8 +128,8 @@ const DashboardLayout = ({
                 onClick={onLogout}
                 className="px-4 py-2 text-white rounded-lg transition-colors text-sm font-medium flex items-center space-x-2"
                 style={{ backgroundColor: '#4CBB17' }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#3da612'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#4CBB17'}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#3da612'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = '#4CBB17'}
               >
                 <LogOut className="w-4 h-4" />
                 <span>Logout</span>
@@ -145,6 +146,41 @@ const DashboardLayout = ({
         </main>
       </div>
     </div>
+  );
+};
+
+// Demo
+const App = () => {
+  const [activeNav, setActiveNav] = useState('reports');
+
+  const navItems = [
+    { id: 'reports', label: 'Generate Reports', icon: BarChart3 },
+    { id: 'pickups', label: 'Special Pickups', icon: Package },
+    { id: 'routes', label: 'Route Changes', icon: Truck },
+    { id: 'bins', label: 'Bin Requests', icon: Trash2 },
+    { id: 'approvals', label: 'Approvals', icon: CheckSquare },
+  ];
+
+  const handleLogout = () => {
+    console.log('Logout clicked');
+  };
+
+  return (
+    <DashboardLayout
+      navItems={navItems}
+      activeNav={activeNav}
+      onNavClick={setActiveNav}
+      logo="Admin"
+      user={{ name: 'Admin User' }}
+      onLogout={handleLogout}
+      pageTitle="Generate Reports"
+      pageSubtitle="Create comprehensive reports and analyze waste management data"
+    >
+      {/* Your dashboard content goes here */}
+      <div className="text-center text-gray-400 py-20">
+        <p className="text-lg">Your content goes here</p>
+      </div>
+    </DashboardLayout>
   );
 };
 

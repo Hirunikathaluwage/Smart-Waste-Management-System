@@ -2,16 +2,15 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import DashboardLayout from '../../components/dashboard/AdminDashboardLayout';
-import { BarChart3, Package, Truck, Trash2, CheckSquare, LineChart, Check, X } from 'lucide-react';
+import { Check, X, BarChart3, Package, Truck, Trash2, CheckSquare, LineChart } from 'lucide-react';
 
-const BinRequestsManagement = () => {
+const SpecialPickupManagement = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const [activeNav, setActiveNav] = useState('bins');
   const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [activeNav, setActiveNav] = useState('pickups');
 
-  // Sidebar nav items (same as AdminDashboard)
   const navItems = [
     { id: 'reports', label: 'Generate Reports', icon: BarChart3 },
     { id: 'pickups', label: 'Special Pickups', icon: Package },
@@ -20,18 +19,21 @@ const BinRequestsManagement = () => {
     { id: 'analytics', label: 'Analytics', icon: LineChart },
   ];
 
-  const binRequests = [
-    { id: 'BR001', name: 'John Smith', area: 'Downtown', date: '2024-01-15', type: 'Additional Bin', status: 'pending' },
-    { id: 'BR002', name: 'Sarah Johnson', area: 'Northside', date: '2024-01-14', type: 'Replacement Bin', status: 'approved' },
-    { id: 'BR003', name: 'Mike Wilson', area: 'Eastside', date: '2024-01-13', type: 'Recycling Bag', status: 'declined' },
-    { id: 'BR004', name: 'Emily Davis', area: 'Westside', date: '2024-01-12', type: 'Additional Bin', status: 'pending' },
-    { id: 'BR005', name: 'Robert Brown', area: 'Downtown', date: '2024-01-11', type: 'Compost Bin', status: 'approved' },
+  const specialPickups = [
+    { id: 'SP001', name: 'John Smith', area: 'Downtown', date: '2024-01-15', type: 'Furniture', status: 'pending' },
+    { id: 'SP002', name: 'Sarah Johnson', area: 'Northside', date: '2024-01-14', type: 'Electronics', status: 'approved' },
+    { id: 'SP003', name: 'Mike Wilson', area: 'Eastside', date: '2024-01-13', type: 'Garden Waste', status: 'declined' },
+    { id: 'SP004', name: 'Emily Davis', area: 'Westside', date: '2024-01-12', type: 'Furniture', status: 'pending' },
+    { id: 'SP005', name: 'Robert Brown', area: 'Downtown', date: '2024-01-11', type: 'Electronics', status: 'approved' },
+    { id: 'SP006', name: 'Lisa Anderson', area: 'Southside', date: '2024-01-10', type: 'Appliances', status: 'pending' },
+    { id: 'SP007', name: 'David Martinez', area: 'Downtown', date: '2024-01-09', type: 'Construction Debris', status: 'approved' },
+    { id: 'SP008', name: 'Jessica Lee', area: 'Northside', date: '2024-01-08', type: 'Furniture', status: 'declined' },
   ];
 
   const filteredRequests =
     statusFilter === 'all'
-      ? binRequests
-      : binRequests.filter((req) => req.status === statusFilter);
+      ? specialPickups
+      : specialPickups.filter((req) => req.status === statusFilter);
 
   const itemsPerPage = 10;
   const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
@@ -48,18 +50,19 @@ const BinRequestsManagement = () => {
     return styles[status] || styles.pending;
   };
 
-  const handleLogout = () => logout();
-
-  const handleNavClick = (navId) => {
-    setActiveNav(navId);
-    if (navId === 'reports') navigate('/admin/dashboard');
-    else if (navId === 'bins') navigate('/admin/bins');
-    else if (navId === 'pickups') navigate('/admin/pickups');
-    else if (navId === 'analytics') navigate('/admin/analytics');
-  };
-
   const handleApprove = (id) => console.log('Approve request:', id);
   const handleDecline = (id) => console.log('Decline request:', id);
+
+  const handleLogout = () => logout();
+
+  // Sidebar navigation click handling - same as AdminDashboard
+  const handleNavClick = (navId) => {
+    setActiveNav(navId);
+    if (navId === 'bins') navigate('/admin/bins');
+    else if (navId === 'pickups') navigate('/admin/pickups');
+    else if (navId === 'analytics') navigate('/admin/analytics');
+    else if (navId === 'reports') navigate('/admin/dashboard');
+  };
 
   return (
     <DashboardLayout
@@ -69,8 +72,8 @@ const BinRequestsManagement = () => {
       logo="Admin"
       user={user}
       onLogout={handleLogout}
-      pageTitle="Requests Management"
-      pageSubtitle="Manage all incoming requests across different categories"
+      pageTitle="Special Pickup Requests"
+      pageSubtitle="Manage special waste collection requests from residents"
     >
       {/* Main Content */}
       <div className="bg-white rounded-lg shadow-sm">
@@ -208,4 +211,4 @@ const BinRequestsManagement = () => {
   );
 };
 
-export default BinRequestsManagement;
+export default SpecialPickupManagement;
