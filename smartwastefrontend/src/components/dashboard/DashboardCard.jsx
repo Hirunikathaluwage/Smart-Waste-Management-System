@@ -14,7 +14,7 @@
  * @param {Function} onNavigate - Navigation handler function
  */
 
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight } from "lucide-react";
 
 const DashboardCard = ({ dashboard, onNavigate }) => {
   const IconComponent = dashboard.icon;
@@ -24,7 +24,7 @@ const DashboardCard = ({ dashboard, onNavigate }) => {
   };
 
   const handleMouseLeave = (e) => {
-    e.currentTarget.style.borderColor = 'transparent';
+    e.currentTarget.style.borderColor = "transparent";
   };
 
   const handleClick = () => {
@@ -43,7 +43,10 @@ const DashboardCard = ({ dashboard, onNavigate }) => {
           className="w-12 h-12 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110"
           style={{ backgroundColor: `${dashboard.color}15` }}
         >
-          <IconComponent className="w-6 h-6" style={{ color: dashboard.color }} />
+          <IconComponent
+            className="w-6 h-6"
+            style={{ color: dashboard.color }}
+          />
         </div>
         <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-all group-hover:translate-x-1" />
       </div>

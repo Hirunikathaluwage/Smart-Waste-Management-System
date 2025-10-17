@@ -11,6 +11,8 @@
  */
 
 const StatCard = ({ stat }) => {
+  if (!stat || !stat.icon) return null; // Prevent rendering if stat or icon is missing
+
   const IconComponent = stat.icon;
 
   return (
@@ -25,7 +27,10 @@ const StatCard = ({ stat }) => {
           className="w-10 h-10 rounded-lg flex items-center justify-center"
           style={{ backgroundColor: `${stat.iconColor}15` }}
         >
-          <IconComponent className="w-5 h-5" style={{ color: stat.iconColor }} />
+          <IconComponent
+            className="w-5 h-5"
+            style={{ color: stat.iconColor }}
+          />
         </div>
       </div>
     </div>

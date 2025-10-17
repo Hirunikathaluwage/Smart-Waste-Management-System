@@ -15,17 +15,18 @@ import SignIn from "./pages/auth/SignIn";
 import ResidentDashboard from "./pages/resident/Dashboard";
 import WorkerDashboard from "./pages/worker/Dashboard";
 import AdminDashboard from "./pages/admin/Dashboard";
-import BinRequestsManagement from "./pages/admin/BinRequestsManagement";
 import BusinessDashboard from "./pages/business/Dashboard";
+import BinRequestsManagement from "./pages/admin/BinRequestsManagement";
 import BusinessPickupRequestPage from "./pages/business/PickupRequestPage";
 import PickupRequestPage from "./pages/pickup/PickupRequestPage";
 import AdminPickupDashboard from "./components/admin/AdminPickupDashboard";
-import { ROLES } from "./constants/roles";
 import WasteCollectionPerformance from "./pages/admin/WasteCollectionPerformance";
 import RecyclingTrends from "./pages/admin/RecyclingTrends";
 import FinancialSummary from "./pages/admin/FinancialSummary";
 import EnvironmentalImpact from "./pages/admin/EnvironmentalImpact";
 import SpecialPickupManagement from "./pages/admin/SpecialPickupManagement";
+import { ROLES } from "./constants/roles";
+
 /**
  * Layout wrapper component that conditionally renders Header and Footer
  */
@@ -36,7 +37,8 @@ function Layout({ children }) {
   const isDashboardRoute =
     location.pathname.startsWith("/admin/") ||
     location.pathname.startsWith("/resident/") ||
-    location.pathname.startsWith("/worker/");
+    location.pathname.startsWith("/worker/") ||
+    location.pathname.startsWith("/business/");
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -53,8 +55,9 @@ function Layout({ children }) {
 
 /**
  * App Component - Main application component
- * Follows Dependency Inversion - components depend on AuthProvider abstraction
- * Follows Open/Closed - easy to add new routes without modifying existing code
+ * Follows SOLID principles:
+ * - Dependency Inversion: Components depend on AuthProvider abstraction
+ * - Open/Closed: Easily extend routes without modifying core logic
  */
 function App() {
   return (
@@ -127,7 +130,7 @@ function App() {
               }
             />
 
-            {/*  Admin - Analytics Page (separate route for analytics dashboard) */}
+            {/* Admin - Analytics Main Page */}
             <Route
               path="/admin/analytics"
               element={
@@ -137,7 +140,7 @@ function App() {
               }
             />
 
-            {/* Admin - Bin Requests Management */}
+            {/* Admin - Bin & Special Pickup Management */}
             <Route
               path="/admin/bins"
               element={

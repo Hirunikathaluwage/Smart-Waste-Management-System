@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PDF Generation Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <h1>PDF Generation Test</h1>
+    <button onclick="generateTestPDF()">Generate Test PDF</button>
+    
+    <script>
+        function generateTestPDF() {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Set up colors
+                const primaryColor = [76, 187, 23]; // Green color
+                const darkGray = [51, 51, 51];
+                const lightGray = [102, 102, 102];
+                
+                // Header
+                doc.setFillColor(...primaryColor);
+                doc.rect(0, 0, 210, 30, 'F');
+                
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(20);
+                doc.setFont('helvetica', 'bold');
+                doc.text('🌱 Smart Waste Management', 20, 20);
+                
+                // Invoice title
+                doc.setTextColor(...darkGray);
+                doc.setFontSize(24);
+                doc.setFont('helvetica', 'bold');
+                doc.text('INVOICE', 20, 50);
+                
+                // Invoice number
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(...lightGray);
+                doc.text(`Invoice #INV-${Date.now()}`, 20, 60);
+                
+                // Date
+                const currentDate = new Date().toLocaleDateString();
+                doc.text(`Date: ${currentDate}`, 150, 60);
+                
+                // Customer information
+                doc.setTextColor(...darkGray);
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Bill To:', 20, 80);
+                
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'normal');
+                doc.text('Test Customer', 20, 90);
+                doc.text('test@example.com', 20, 100);
+                doc.text('123 Test Street', 20, 110);
+                
+                // Payment information
+                doc.setFont('helvetica', 'bold');
+                doc.text('Payment Information:', 20, 130);
+                doc.setFont('helvetica', 'normal');
+                doc.text('Payment ID: pi_test_123', 20, 140);
+                doc.text('Method ID: pm_test_123', 20, 150);
+                doc.text('Status: ✅ PAID', 20, 160);
+                
+                // Service details table
+                doc.setFont('helvetica', 'bold');
+                doc.text('Service Details:', 20, 180);
+                
+                // Table header
+                doc.setFillColor(248, 249, 250);
+                doc.rect(20, 185, 170, 10, 'F');
+                doc.setTextColor(...darkGray);
+                doc.setFontSize(10);
+                doc.text('Service', 25, 192);
+                doc.text('Description', 80, 192);
+                doc.text('Amount', 150, 192);
+                
+                // Table row
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(...lightGray);
+                doc.text('Waste Collection', 25, 202);
+                doc.text('General - Test Items', 80, 202);
+                doc.text('$10.00', 150, 202);
+                
+                // Total amount
+                doc.setFillColor(240, 248, 240);
+                doc.rect(120, 210, 70, 15, 'F');
+                doc.setTextColor(...primaryColor);
+                doc.setFontSize(16);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Total: $10.00', 125, 220);
+                
+                // Footer
+                doc.setTextColor(...lightGray);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.text('Thank you for choosing Smart Waste Management!', 20, 250);
+                doc.text('For any queries, contact us at support@smartwaste.com', 20, 260);
+                doc.text(`Invoice generated on ${currentDate}`, 20, 270);
+                
+                // Download the PDF
+                doc.save('test-invoice.pdf');
+                
+                console.log('PDF generated successfully!');
+                alert('PDF generated successfully! Check your downloads.');
+                
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                alert('Error generating PDF: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
