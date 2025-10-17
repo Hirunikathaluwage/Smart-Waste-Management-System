@@ -5,6 +5,7 @@ import DashboardCard from '../../components/dashboard/DashboardCard';
 import ActionButton from '../../components/dashboard/ActionButton';
 import ActivityItem from '../../components/dashboard/ActivityItem';
 import CollectionPage from './CollectionPage';
+import PickupRoutesPage from './PickupRoutesPage';
 
 // Simple icon components to avoid external dependencies - follows SRP for icon management
 const Truck = () => <span className="text-lg">🚛</span>;
@@ -27,7 +28,7 @@ const WorkerDashboard = () => {
 
   // Define navigation items for worker - follows OCP principle for easy extension
   const navItems = [
-    { id: 'routes', label: 'My Routes', icon: Truck },
+    { id: 'routes', label: 'Pickup Routes', icon: Truck },
     { id: 'collection', label: 'Record Collection', icon: Scan },
     { id: 'collections', label: "Today's Collections", icon: Trash2 },
     { id: 'location', label: 'Current Location', icon: MapPin },
@@ -44,9 +45,10 @@ const WorkerDashboard = () => {
   // Render different content based on active navigation - follows SRP principle
   const renderContent = () => {
     switch (activeNav) {
+      case 'routes':
+        return <PickupRoutesPage />;
       case 'collection':
         return <CollectionPage />;
-      case 'routes':
       case 'collections':
       case 'location':
       case 'report':

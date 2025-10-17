@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { FeedbackDisplay, ProgressIndicator, SensorDataDisplay, CollectionTable } from '../../components/collection/CollectionComponents';
+import NavigationMap from '../../components/collection/NavigationMap';
+import GPSPermissionDialog from '../../components/common/GPSPermissionDialog';
 import audioFeedbackService from '../../services/AudioFeedbackService';
 import mockIoTSensorService from '../../services/MockIoTSensorService';
 import binService from '../../services/BinService';
 import collectionService from '../../services/CollectionService';
+import RouteConfigService from '../../services/RouteConfig';
+import locationService from '../../services/LocationService';
 
 // Simple SVG icons to avoid external dependencies - follows SRP for icon management
 const CheckCircleIcon = ({ className }) => (
@@ -89,6 +93,13 @@ const CollectionPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [workerId] = useState('WORKER-001'); // Mock worker ID for demo
+  const [currentLocation, setCurrentLocation] = useState(null);
+  const [locationError, setLocationError] = useState(null);
+  const [isLocationTracking, setIsLocationTracking] = useState(false);
+  const [showNavigationMap, setShowNavigationMap] = useState(false);
+  const [showGPSPermissionDialog, setShowGPSPermissionDialog] = useState(false);
+  const [hasRequestedPermission, setHasRequestedPermission] = useState(false);
+  const [isRefreshingLocation, setIsRefreshingLocation] = useState(false);
 
   /**
    * Helper function to get bin status styling - follows SRP for status display logic
@@ -160,7 +171,6 @@ const CollectionPage = () => {
         // Load bins
         const bins = await binService.getAllBins();
         setAvailableBins(bins);
-        setRouteProgress(prev => ({ ...prev, total: bins.length }));
         
         // Load today's collection records
         const todayCollections = await collectionService.getTodayCollectionRecords(workerId);
@@ -170,9 +180,6 @@ const CollectionPage = () => {
         const totalWeightFromSaved = todayCollections.reduce((sum, record) => sum + (record.weight || 0), 0);
         setTotalWeight(totalWeightFromSaved);
         
-        // Update route progress
-        setRouteProgress(prev => ({ ...prev, collected: todayCollections.length }));
-        
         setError(null);
       } catch (err) {
         console.error('Failed to load data:', err);
@@ -180,14 +187,13 @@ const CollectionPage = () => {
         
         // Fallback to mock data if backend is unavailable
         const mockBins = [
-          { binId: 'BIN-001', address: '123 Galle Road, Colombo 03', ownerId: 'RES-001', status: 'ACTIVE' },
+          { binId: 'BIN-001', address: '123 Galle Road, Colombo 03', ownerId: 'RES-001', status: 'COLLECTED' },
           { binId: 'BIN-002', address: '456 Union Place, Colombo 02', ownerId: 'RES-002', status: 'ACTIVE' },
           { binId: 'BIN-003', address: '789 Main Street, Colombo 11', ownerId: 'RES-003', status: 'DAMAGED' },
           { binId: 'BIN-004', address: '321 Marine Drive, Colombo 06', ownerId: 'RES-004', status: 'ACTIVE' },
           { binId: 'BIN-005', address: '654 Galle Road, Mount Lavinia', ownerId: 'RES-005', status: 'ACTIVE' },
         ];
         setAvailableBins(mockBins);
-        setRouteProgress(prev => ({ ...prev, total: mockBins.length }));
       } finally {
         setLoading(false);
       }
@@ -195,6 +201,54 @@ const CollectionPage = () => {
 
     loadData();
   }, [workerId]);
+
+  // Update route progress when collected bins change
+  useEffect(() => {
+    // Use total bins for progress calculation
+    setRouteProgress(prev => ({ ...prev, collected: collectedBins.length, total: availableBins.length }));
+  }, [collectedBins, availableBins]);
+
+  // GPS Location Tracking - follows SRP for location management
+  useEffect(() => {
+    const initializeLocation = async () => {
+      try {
+        // Check if we should request permission
+        const availability = await locationService.checkLocationAvailability();
+        
+        if (availability.available && availability.canEnable && !hasRequestedPermission) {
+          // Show permission dialog instead of directly requesting
+          setShowGPSPermissionDialog(true);
+          setHasRequestedPermission(true);
+        } else if (availability.available && !availability.canEnable) {
+          // Permission already granted, get location
+          const location = await locationService.getCurrentLocation();
+          setCurrentLocation(location);
+          setLocationError(null);
+        }
+      } catch (error) {
+        console.warn('Failed to initialize location:', error);
+        setLocationError('Location services unavailable');
+      }
+    };
+
+    initializeLocation();
+  }, [hasRequestedPermission]);
+
+  // Start/stop location tracking based on user preference
+  useEffect(() => {
+    if (isLocationTracking && currentLocation) {
+      const watchId = locationService.startTracking((location) => {
+        setCurrentLocation(location);
+        setLocationError(null);
+      });
+      
+      return () => {
+        if (watchId) {
+          locationService.stopTracking();
+        }
+      };
+    }
+  }, [isLocationTracking, currentLocation]);
 
   // Timer effect - follows SRP for time tracking
   useEffect(() => {
@@ -213,6 +267,93 @@ const CollectionPage = () => {
   const playFeedbackSound = (type) => {
     // Use the audio feedback service - follows DIP principle
     audioFeedbackService.playFeedbackSound(type);
+  };
+
+  /**
+   * Get current route name for display - follows SRP for route information
+   * @returns {string} Route name or fallback text
+   */
+  const getCurrentRouteName = () => {
+    const savedRouteId = localStorage.getItem('selectedRouteId');
+    if (!savedRouteId) return 'No Route Selected';
+    const route = RouteConfigService.getRouteById(savedRouteId);
+    return route ? route.name : 'Invalid Route';
+  };
+
+  /**
+   * Handle GPS permission granted - follows SRP for permission handling
+   */
+  const handleGPSPermissionGranted = async () => {
+    try {
+      const location = await locationService.getCurrentLocation();
+      setCurrentLocation(location);
+      setLocationError(null);
+      setShowGPSPermissionDialog(false);
+    } catch (error) {
+      console.error('Failed to get location after permission granted:', error);
+      setLocationError('Failed to get location');
+    }
+  };
+
+  /**
+   * Handle GPS permission denied - follows SRP for permission handling
+   * @param {string} message - Error message from permission denial
+   */
+  const handleGPSPermissionDenied = (message) => {
+    setLocationError(message);
+    setShowGPSPermissionDialog(false);
+  };
+
+  /**
+   * Handle location tracking toggle - follows SRP for tracking control
+   */
+  const handleLocationTrackingToggle = () => {
+    if (!currentLocation) {
+      // Show permission dialog if location not available
+      setShowGPSPermissionDialog(true);
+      return;
+    }
+    
+    setIsLocationTracking(!isLocationTracking);
+  };
+
+  /**
+   * Handle location refresh - follows SRP for location refresh
+   */
+  const handleLocationRefresh = async () => {
+    setIsRefreshingLocation(true);
+    setLocationError(null);
+
+    try {
+      const location = await locationService.getHighAccuracyLocation();
+      setCurrentLocation(location);
+      setLocationError(null);
+    } catch (error) {
+      console.error('Failed to refresh location:', error);
+      setLocationError('Failed to refresh location. Please try again.');
+    } finally {
+      setIsRefreshingLocation(false);
+    }
+  };
+
+  /**
+   * Get location quality indicator - follows SRP for quality display
+   * @param {Object} location - Current location object
+   * @returns {Object} Quality indicator data
+   */
+  const getLocationQualityIndicator = (location) => {
+    if (!location) return null;
+
+    const quality = location.quality || locationService.getLocationQuality(location.accuracy);
+    const color = locationService.getLocationQualityColor(quality);
+    const description = locationService.getLocationQualityDescription(quality);
+
+    return {
+      quality,
+      color,
+      description,
+      accuracy: Math.round(location.accuracy)
+    };
   };
 
 
@@ -243,6 +384,36 @@ const CollectionPage = () => {
       playFeedbackSound('error');
       return;
     }
+
+    // Location verification - follows SRP for location validation
+    if (currentLocation && bin.latitude && bin.longitude) {
+      const distance = locationService.calculateDistance(
+        currentLocation,
+        { latitude: bin.latitude, longitude: bin.longitude }
+      );
+      
+      if (distance > 50) { // 50 meters threshold
+        setFeedback({
+          type: 'warning',
+          message: `You are ${Math.round(distance)}m away from ${bin.binId}. Are you sure you're at the correct location?`,
+          options: [
+            { text: 'Cancel', type: 'secondary', onClick: () => setBinId('') },
+            { text: 'Continue Anyway', type: 'primary', onClick: () => proceedWithCollection(bin) }
+          ]
+        });
+        playFeedbackSound('warning');
+        return;
+      }
+    }
+
+    proceedWithCollection(bin);
+  };
+
+  /**
+   * Proceed with collection after validation - follows SRP for collection processing
+   * @param {Object} bin - The bin object to collect
+   */
+  const proceedWithCollection = async (bin) => {
 
     // Check for duplicate scan using backend service
     try {
@@ -643,6 +814,31 @@ const CollectionPage = () => {
 
             {/* Collected Bins Table */}
             <CollectionTable collectedBins={collectedBins} />
+
+            {/* Navigation Map */}
+            {showNavigationMap && (
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold text-gray-900">Navigation Map</h2>
+                  <button
+                    onClick={() => setShowNavigationMap(false)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <XCircleIcon className="w-5 h-5" />
+                  </button>
+                </div>
+                <NavigationMap
+                  selectedRouteId={localStorage.getItem('selectedRouteId')}
+                  collectedBins={collectedBins}
+                  currentLocation={currentLocation}
+                  height="500px"
+                  showNavigation={true}
+                  onBinClick={(bin) => {
+                    console.log('Bin clicked:', bin);
+                  }}
+                />
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -674,7 +870,7 @@ const CollectionPage = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600">Route:</span>
-                  <span className="font-semibold">North District Route 3</span>
+                  <span className="font-semibold">{getCurrentRouteName()}</span>
                 </div>
               </div>
               <button
@@ -685,24 +881,88 @@ const CollectionPage = () => {
               </button>
             </div>
 
-            {/* Quick Actions */}
+
+            {/* Location Tracking Controls */}
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-              <div className="space-y-3">
-                <button className="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors">
-                  Reschedule Pickup
-                </button>
-                <button className="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors">
-                  Report Issue
-                </button>
-                <button 
-                  onClick={() => setIsOffline(!isOffline)}
-                  className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${
-                    isOffline ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {isOffline ? 'Go Online' : 'Go Offline'}
-                </button>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Location Tracking</h2>
+              <div className="space-y-4">
+                {/* Location Status */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">GPS Status:</span>
+                  <div className="flex items-center space-x-2">
+                    <div className={`w-2 h-2 rounded-full ${currentLocation ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                    <span className="text-sm font-medium">
+                      {currentLocation ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* GPS Quality Indicator */}
+                {currentLocation && (() => {
+                  const qualityInfo = getLocationQualityIndicator(currentLocation);
+                  return (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600">GPS Quality:</span>
+                        <div className="flex items-center space-x-2">
+                          <div className={`w-2 h-2 rounded-full ${
+                            qualityInfo.quality === 'excellent' ? 'bg-green-500' :
+                            qualityInfo.quality === 'good' ? 'bg-blue-500' :
+                            qualityInfo.quality === 'fair' ? 'bg-yellow-500' : 'bg-red-500'
+                          }`}></div>
+                          <span className={`text-sm font-medium ${qualityInfo.color}`}>
+                            {qualityInfo.quality.charAt(0).toUpperCase() + qualityInfo.quality.slice(1)}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600">Accuracy:</span>
+                        <span className="text-sm font-medium">{qualityInfo.accuracy}m</span>
+                      </div>
+                      
+                      <div className="bg-gray-50 rounded-lg p-2">
+                        <p className="text-xs text-gray-600">{qualityInfo.description}</p>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* Location Error */}
+                {locationError && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <div className="text-sm text-red-800">{locationError}</div>
+                  </div>
+                )}
+
+                {/* Control Buttons */}
+                <div className="space-y-2">
+                  <button
+                    onClick={handleLocationTrackingToggle}
+                    className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${
+                      isLocationTracking 
+                        ? 'bg-red-100 text-red-700 hover:bg-red-200' 
+                        : 'bg-green-100 text-green-700 hover:bg-green-200'
+                    }`}
+                  >
+                    {isLocationTracking ? 'Stop Tracking' : 'Start Tracking'}
+                  </button>
+                  
+                  <button
+                    onClick={handleLocationRefresh}
+                    disabled={isRefreshingLocation}
+                    className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+                  >
+                    {isRefreshingLocation ? 'Refreshing...' : 'Refresh Location'}
+                  </button>
+                  
+                  <button
+                    onClick={() => setShowNavigationMap(!showNavigationMap)}
+                    className="w-full bg-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-700 transition-colors"
+                  >
+                    {showNavigationMap ? 'Hide Navigation Map' : 'Show Navigation Map'}
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -749,6 +1009,14 @@ const CollectionPage = () => {
           </div>
         </div>
       </div>
+
+      {/* GPS Permission Dialog */}
+      <GPSPermissionDialog
+        isOpen={showGPSPermissionDialog}
+        onClose={() => setShowGPSPermissionDialog(false)}
+        onPermissionGranted={handleGPSPermissionGranted}
+        onPermissionDenied={handleGPSPermissionDenied}
+      />
     </div>
   );
 };
