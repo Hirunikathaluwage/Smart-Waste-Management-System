@@ -2,6 +2,7 @@ package com.csse.smartwaste.admin.adminReport.adminReportServices;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -10,19 +11,14 @@ import com.csse.smartwaste.admin.adminReport.adminReportDto.ReportRequestDto;
 import com.csse.smartwaste.admin.adminReport.adminReportDto.ReportSummaryDto;
 import com.csse.smartwaste.admin.adminReport.adminReportRepository.ReportRepository;
 import com.csse.smartwaste.admin.adminReport.adminReportRepository.WasteRecordRepository;
-import com.csse.smartwaste.admin.adminReport.reportEntity.Report; // ✅ NEW
+import com.csse.smartwaste.admin.adminReport.reportEntity.Report;
 import com.csse.smartwaste.common.model.WasteRecord;
 
-/**
- * AdminReportServiceImpl SRP: Handles analytics logic and persistence. OCP:
- * Supports adding new metrics easily. DIP: Depends on repository interfaces
- * only.
- */
 @Service
 public class AdminReportServiceImpl implements AdminReportService {
 
     private final WasteRecordRepository wasteRecordRepository;
-    private final ReportRepository reportRepository; // ✅ NEW
+    private final ReportRepository reportRepository;
 
     public AdminReportServiceImpl(WasteRecordRepository wasteRecordRepository, ReportRepository reportRepository) {
         this.wasteRecordRepository = wasteRecordRepository;
@@ -31,20 +27,15 @@ public class AdminReportServiceImpl implements AdminReportService {
 
     @Override
     public ReportSummaryDto generateReport(ReportRequestDto request) {
-
-        // 1️⃣ Fetch waste data
         List<WasteRecord> records = request.getArea().equalsIgnoreCase("all-areas")
                 ? wasteRecordRepository.findAll()
                 : wasteRecordRepository.findByArea(request.getArea());
 
-        // 2️⃣ Compute metrics
         double totalWaste = records.stream().mapToDouble(WasteRecord::getWeightKg).sum();
-
         double recycledWaste = records.stream()
                 .filter(r -> r.getWasteType().equalsIgnoreCase("recyclables"))
                 .mapToDouble(WasteRecord::getWeightKg)
                 .sum();
-
         double recyclingRate = totalWaste > 0 ? (recycledWaste / totalWaste) * 100 : 0;
 
         List<String> highWasteZones = records.stream()
@@ -55,7 +46,6 @@ public class AdminReportServiceImpl implements AdminReportService {
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
 
-        // 3️⃣ Save generated report in MongoDB
         Report report = new Report();
         report.setReportType(request.getReportType());
         report.setArea(request.getArea());
@@ -63,10 +53,8 @@ public class AdminReportServiceImpl implements AdminReportService {
         report.setSelectedWasteTypes(request.getSelectedWasteTypes());
         report.setTotalWaste(totalWaste);
         report.setRecyclingRate(recyclingRate);
+        reportRepository.save(report);
 
-        reportRepository.save(report); // ✅ MongoDB will now auto-create 'reports' collection
-
-        // 4️⃣ Return summary
         ReportSummaryDto summary = new ReportSummaryDto();
         summary.setReportType(report.getReportType());
         summary.setArea(report.getArea());
@@ -75,5 +63,17 @@ public class AdminReportServiceImpl implements AdminReportService {
         summary.setHighWasteZones(highWasteZones);
 
         return summary;
+    }
+
+    // New: Get all reports
+    @Override
+    public List<Report> getAllReports() {
+        return reportRepository.findAll();
+    }
+
+    //  New: Get report by ID
+    @Override
+    public Optional<Report> getReportById(String id) {
+        return reportRepository.findById(id);
     }
 }
