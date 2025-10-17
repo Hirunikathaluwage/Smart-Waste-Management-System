@@ -633,53 +633,6 @@ const NavigationMap = ({
         </div>
       )}
 
-      {/* Navigation Info Overlay */}
-      {mapLoaded && showNavigation && selectedRouteId && RouteConfigService.isValidRoute(selectedRouteId) && (
-        <div className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-white rounded-lg shadow-lg p-3 sm:p-4 max-w-[280px] w-full sm:min-w-[250px] z-10">
-          <div className="text-sm font-semibold text-gray-900 mb-3">
-            {RouteConfigService.getRouteById(selectedRouteId)?.name || 'Navigation'}
-          </div>
-          
-          {/* Progress */}
-          <div className="space-y-2 mb-3">
-            <div className="flex justify-between text-xs">
-              <span className="text-gray-600">Progress:</span>
-              <span className="font-medium">{progress.collected}/{progress.total} ({progress.percentage}%)</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-green-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${progress.percentage}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Next Destination */}
-          {nextDestination && (
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-2">
-              <div className="text-xs font-medium text-orange-800 mb-1">Next Destination</div>
-              <div className="text-xs text-orange-700">{nextDestination.binId}</div>
-              <div className="text-xs text-orange-600">{nextDestination.address}</div>
-              <div className="text-xs text-orange-600">
-                Distance: {Math.round(nextDestination.distance)}m
-              </div>
-            </div>
-          )}
-
-          {/* Current Location */}
-          {currentLocation && (
-            <div className="mt-2 text-xs text-gray-600">
-              <div className="flex items-center space-x-1">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <span>Current Location</span>
-              </div>
-              <div className="text-xs text-gray-500">
-                Accuracy: {Math.round(currentLocation.accuracy)}m
-              </div>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Legend */}
       {mapLoaded && selectedRouteId && (

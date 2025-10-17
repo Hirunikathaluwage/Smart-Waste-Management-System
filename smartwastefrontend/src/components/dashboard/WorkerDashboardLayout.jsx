@@ -109,7 +109,7 @@ const DashboardLayout = ({
               </button>
 
               {/* User Profile */}
-              <div className="flex items-center space-x-3 px-3 py-2 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer">
+              <div className="flex items-center space-x-3 px-3 py-2">
                 {user?.avatar ? (
                   <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full" />
                 ) : (
