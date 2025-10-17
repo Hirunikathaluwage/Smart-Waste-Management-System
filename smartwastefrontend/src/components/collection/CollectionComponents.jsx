@@ -252,7 +252,7 @@ const SensorDataDisplay = ({ sensorData, title = "Bin Sensor Data (Mock)" }) => 
  * - No duplicate code: Reusable table components
  * - No magic strings: All status types properly defined
  */
-const CollectionTable = ({ collectedBins, title = "Collected Bins" }) => {
+const CollectionTable = ({ collectedBins, title = "Collected Bins", onResetBin }) => {
   // Status badge styling following OCP - easy to extend with new status types
   const getStatusBadgeStyle = (status) => {
     switch (status) {
@@ -266,6 +266,14 @@ const CollectionTable = ({ collectedBins, title = "Collected Bins" }) => {
         return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  // Reset button handler following SRP - single responsibility
+  const handleResetBin = (binId, event) => {
+    event.stopPropagation(); // Prevent row click
+    if (onResetBin) {
+      onResetBin(binId);
     }
   };
 
@@ -294,6 +302,9 @@ const CollectionTable = ({ collectedBins, title = "Collected Bins" }) => {
               <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                 Status
               </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -318,6 +329,15 @@ const CollectionTable = ({ collectedBins, title = "Collected Bins" }) => {
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadgeStyle(bin.status)}`}>
                     {bin.status}
                   </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <button
+                    onClick={(e) => handleResetBin(bin.binId, e)}
+                    className="text-red-600 hover:text-red-900 font-medium text-xs bg-red-50 hover:bg-red-100 px-2 py-1 rounded transition-colors"
+                    title="Reset bin to make it scannable again"
+                  >
+                    Reset
+                  </button>
                 </td>
               </tr>
             ))}
