@@ -67,6 +67,7 @@ const ResidentDashboard = () => {
   // Define navigation items for resident
   const navItems = [
     { id: 'overview', label: 'Overview', icon: Calendar },
+    { id: 'bin-status', label: 'Bin Status', icon: Trash2 },
     { id: 'requests', label: 'My Requests', icon: Trash2 },
     { id: 'schedule', label: 'Collection Schedule', icon: Calendar },
     { id: 'payments', label: 'Payment History', icon: CreditCard },
@@ -240,6 +241,24 @@ const ResidentDashboard = () => {
               )}
             </div>
           </>
+        );
+
+      case 'bin-status':
+        return (
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Bin Status & IoT Sensors</h2>
+            <div className="text-center py-12 text-gray-500">
+              <Trash2 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <p className="text-lg font-medium mb-2">Real-time Bin Monitoring</p>
+              <p>View real-time IoT sensor data for your waste bins</p>
+              <button 
+                onClick={() => navigate('/resident/bin-status')}
+                className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                View Bin Status
+              </button>
+            </div>
+          </div>
         );
 
       case 'requests':

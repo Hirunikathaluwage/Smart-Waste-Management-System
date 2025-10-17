@@ -19,14 +19,27 @@ const PUBLIC_NAV_ITEMS = [
 const ROLE_NAV_ITEMS = {
   [ROLES.RESIDENT]: [
     { name: 'Dashboard', path: '/resident/dashboard', icon: '🏠' },
+    { name: 'Bin Status', path: '/resident/bin-status', icon: '🗑️' },
+    { name: 'My Requests', path: '/resident/my-requests', icon: '📋' },
     { name: 'Schedule', path: '/resident/schedule', icon: '📅' },
     { name: 'Request Pickup', path: '/resident/pickups', icon: '🗑️' },
     { name: 'Payments', path: '/resident/payments', icon: '💳' },
     { name: 'Rewards', path: '/resident/rewards', icon: '🏆' },
     { name: 'Support', path: '/resident/support', icon: '💬' }
   ],
+  [ROLES.BUSINESS]: [
+    { name: 'Dashboard', path: '/business/dashboard', icon: '🏢' },
+    { name: 'Bin Status', path: '/business/bin-status', icon: '🗑️' },
+    { name: 'My Requests', path: '/business/my-requests', icon: '📋' },
+    { name: 'Schedule', path: '/business/schedule', icon: '📅' },
+    { name: 'Request Pickup', path: '/business/pickups', icon: '🗑️' },
+    { name: 'Payments', path: '/business/payments', icon: '💳' },
+    { name: 'Rewards', path: '/business/rewards', icon: '🏆' },
+    { name: 'Support', path: '/business/support', icon: '💬' }
+  ],
   [ROLES.WORKER]: [
     { name: 'Dashboard', path: '/worker/dashboard', icon: '🏠' },
+    { name: 'Bin/Bag Requests', path: '/worker/bin-bag-requests', icon: '🗑️' },
     { name: 'My Routes', path: '/worker/routes', icon: '🗺️' },
     { name: 'Collections', path: '/worker/collections', icon: '🗑️' },
     { name: 'Reports', path: '/worker/reports', icon: '📝' },

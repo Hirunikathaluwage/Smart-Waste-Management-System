@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapbox Direct Test</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.15.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.15.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+        .map-container { 
+            width: 800px; 
+            height: 400px; 
+            border: 3px solid #007bff; 
+            margin: 20px 0;
+        }
+        .status { 
+            background: #f0f8ff; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mapbox Direct HTML Test</h1>
+    
+    <div class="status">
+        <h3>Status: <span id="status">Initializing...</span></h3>
+        <p><strong>Access Token:</strong> <span id="token-status">Setting...</span></p>
+        <p><strong>Mapbox GL Version:</strong> <span id="version">Loading...</span></p>
+    </div>
+
+    <div id="map" class="map-container"></div>
+
+    <script>
+        const statusEl = document.getElementById('status');
+        const tokenStatusEl = document.getElementById('token-status');
+        const versionEl = document.getElementById('version');
+        
+        // Your Mapbox token
+        const accessToken = 'pk.eyJ1IjoiYWVudWluZSIsImEiOiJjbWdtb3Y0cGUxbTF0MmxuMm94YTBkMjFmIn0.zM-9LZWSduvHhB38MXYoJA';
+        
+        try {
+            statusEl.textContent = 'Setting access token...';
+            mapboxgl.accessToken = accessToken;
+            tokenStatusEl.textContent = 'Present';
+            
+            statusEl.textContent = 'Creating map...';
+            versionEl.textContent = mapboxgl.version;
+            
+            const map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/streets-v11',
+                center: [79.8612, 6.9271], // Colombo, Sri Lanka
+                zoom: 13
+            });
+
+            map.on('load', () => {
+                statusEl.textContent = '✅ Map loaded successfully!';
+                console.log('Map loaded successfully!');
+            });
+
+            map.on('error', (e) => {
+                statusEl.textContent = `❌ Map error: ${e.error?.message || 'Unknown error'}`;
+                console.error('Map error:', e);
+            });
+
+            map.on('style.load', () => {
+                console.log('Style loaded');
+            });
+
+            map.on('render', () => {
+                console.log('Map rendering');
+            });
+
+        } catch (error) {
+            statusEl.textContent = `❌ Error: ${error.message}`;
+            console.error('Error:', error);
+        }
+    </script>
+</body>
+</html>

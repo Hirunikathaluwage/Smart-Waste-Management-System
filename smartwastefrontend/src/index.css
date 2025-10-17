@@ -1,5 +1,17 @@
 /* stylelint-disable-next-line at-rule-no-unknown */
 @import "tailwindcss";
+@import "mapbox-gl/dist/mapbox-gl.css";
+
+/* Ensure mapbox styles override any conflicting styles */
+.mapboxgl-map {
+  font-family: inherit !important;
+}
+
+.mapboxgl-canvas {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+}
 
 @theme {
   --color-emerald-200: #A7F3D0;
@@ -26,6 +38,11 @@ body {
 }
 
 @keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }

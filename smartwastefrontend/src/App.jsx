@@ -14,8 +14,13 @@ import SignUp from "./pages/auth/SignUp";
 import SignIn from "./pages/auth/SignIn";
 import ResidentDashboard from "./pages/resident/Dashboard";
 import WorkerDashboard from "./pages/worker/Dashboard";
+import WorkerBinBagRequestsPage from "./pages/worker/BinBagRequestsPage";
 import AdminDashboard from "./pages/admin/Dashboard";
 import BusinessDashboard from "./pages/business/Dashboard";
+import BinStatusPage from "./pages/BinStatusPage";
+import BinStatusTestPage from "./pages/BinStatusTestPage";
+import UserBinBagRequestsPage from "./pages/UserBinBagRequestsPage";
+import SimpleTest from "./pages/SimpleTest";
 import BinRequestsManagement from "./pages/admin/BinRequestsManagement";
 import BusinessPickupRequestPage from "./pages/business/PickupRequestPage";
 import PickupRequestPage from "./pages/pickup/PickupRequestPage";
@@ -26,6 +31,10 @@ import FinancialSummary from "./pages/admin/FinancialSummary";
 import EnvironmentalImpact from "./pages/admin/EnvironmentalImpact";
 import SpecialPickupManagement from "./pages/admin/SpecialPickupManagement";
 import { ROLES } from "./constants/roles";
+import SimpleMapTest from "./components/SimpleMapTest";
+import MapboxDiagnostic from "./components/MapboxDiagnostic";
+import UltraSimpleMapTest from "./components/UltraSimpleMapTest";
+import FoolproofMap from "./components/FoolproofMap";
 
 /**
  * Layout wrapper component that conditionally renders Header and Footer
@@ -88,6 +97,14 @@ function App() {
               }
             />
             <Route
+              path="/worker/bin-bag-requests"
+              element={
+                <ProtectedRoute allowedRoles={[ROLES.WORKER]}>
+                  <WorkerBinBagRequestsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/admin/dashboard"
               element={
                 <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
@@ -102,6 +119,62 @@ function App() {
                   <BusinessDashboard />
                 </ProtectedRoute>
               }
+            />
+
+            {/* Bin Status Routes */}
+            <Route
+              path="/resident/bin-status"
+              element={<BinStatusTestPage />}
+            />
+            <Route
+              path="/business/bin-status"
+              element={<BinStatusTestPage />}
+            />
+            
+            {/* User Bin/Bag Requests Routes */}
+            <Route
+              path="/resident/my-requests"
+              element={<UserBinBagRequestsPage />}
+            />
+            <Route
+              path="/business/my-requests"
+              element={<UserBinBagRequestsPage />}
+            />
+            
+            {/* Test Route - No Authentication Required */}
+            <Route
+              path="/test-bin-status"
+              element={<BinStatusTestPage />}
+            />
+            
+            {/* Super Simple Test */}
+            <Route
+              path="/simple-test"
+              element={<SimpleTest />}
+            />
+            
+            {/* Simple Map Test */}
+            <Route
+              path="/map-test"
+              element={<SimpleMapTest />}
+            />
+            
+            {/* Mapbox Diagnostic */}
+            <Route
+              path="/mapbox-diagnostic"
+              element={<MapboxDiagnostic />}
+            />
+            
+            {/* Ultra Simple Map Test */}
+            <Route
+              path="/ultra-map-test"
+              element={<UltraSimpleMapTest />}
+            />
+            
+            {/* Foolproof Map Test */}
+            <Route
+              path="/foolproof-map"
+              element={<FoolproofMap />}
             />
 
             {/* Pickup Request Routes */}

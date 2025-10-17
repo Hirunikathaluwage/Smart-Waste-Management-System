@@ -7,7 +7,8 @@ const MapLocationPicker = ({
   onLocationSelect, 
   initialLocation = null, 
   height = '400px',
-  className = '' 
+  className = '',
+  readOnly = false
 }) => {
   const mapContainer = useRef(null);
   const map = useRef(null);
@@ -30,6 +31,12 @@ const MapLocationPicker = ({
   useEffect(() => {
     if (map.current) return; // Initialize map only once
 
+    console.log('Initializing Mapbox map with config:', {
+      accessToken: MAPBOX_CONFIG.accessToken ? 'Present' : 'Missing',
+      style: MAPBOX_CONFIG.style,
+      container: mapContainer.current ? 'Found' : 'Missing'
+    });
+
     // Initialize map
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
@@ -47,11 +54,14 @@ const MapLocationPicker = ({
     // Add map controls
     map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
-    // Set cursor to crosshair for better UX
-    map.current.getCanvas().style.cursor = 'crosshair';
-
-    // Handle map click
-    map.current.on('click', handleMapClick);
+    // Set cursor based on read-only mode
+    if (!readOnly) {
+      map.current.getCanvas().style.cursor = 'crosshair';
+      // Handle map click only if not read-only
+      map.current.on('click', handleMapClick);
+    } else {
+      map.current.getCanvas().style.cursor = 'default';
+    }
 
     // Handle map load
     map.current.on('load', () => {
@@ -62,12 +72,35 @@ const MapLocationPicker = ({
       if (initialLocation) {
         addMarker(initialLocation.longitude, initialLocation.latitude, initialLocation);
       }
+      
+      // Add sample bin markers for read-only mode
+      if (readOnly) {
+        addSampleBinMarkers();
+      }
     });
 
     // Handle map errors
     map.current.on('error', (e) => {
       console.error('Mapbox error:', e);
-      setMapError('Failed to load map. Please check your Mapbox API key.');
+      console.error('Error details:', {
+        type: e.type,
+        error: e.error,
+        message: e.error?.message,
+        status: e.error?.status
+      });
+      
+      let errorMessage = 'Failed to load map. ';
+      if (e.error?.status === 401) {
+        errorMessage += 'Invalid API key. Please check your Mapbox configuration.';
+      } else if (e.error?.status === 403) {
+        errorMessage += 'API key does not have permission for this domain.';
+      } else if (e.error?.message) {
+        errorMessage += e.error.message;
+      } else {
+        errorMessage += 'Please check your Mapbox API key and internet connection.';
+      }
+      
+      setMapError(errorMessage);
     });
 
     // Cleanup function
@@ -87,6 +120,48 @@ const MapLocationPicker = ({
       addMarker(initialLocation.longitude, initialLocation.latitude, initialLocation);
     }
   }, [initialLocation, mapLoaded]);
+
+  const addSampleBinMarkers = () => {
+    // Sample bin locations around Colombo, Sri Lanka
+    const sampleBins = [
+      { lng: 79.8612, lat: 6.9271, status: 'active', id: 'BIN001' },
+      { lng: 79.8712, lat: 6.9371, status: 'full', id: 'BIN002' },
+      { lng: 79.8512, lat: 6.9171, status: 'active', id: 'BIN003' },
+      { lng: 79.8812, lat: 6.9471, status: 'maintenance', id: 'BIN004' },
+      { lng: 79.8412, lat: 6.9071, status: 'active', id: 'BIN005' }
+    ];
+
+    sampleBins.forEach(bin => {
+      const color = bin.status === 'active' ? '#10B981' : 
+                   bin.status === 'full' ? '#F59E0B' : 
+                   bin.status === 'maintenance' ? '#EF4444' : '#6B7280';
+      
+      const marker = new mapboxgl.Marker({
+        color: color,
+        scale: 0.8
+      })
+        .setLngLat([bin.lng, bin.lat])
+        .addTo(map.current);
+
+      // Add popup
+      const popup = new mapboxgl.Popup({
+        closeButton: true,
+        closeOnClick: false,
+        anchor: 'bottom'
+      })
+        .setLngLat([bin.lng, bin.lat])
+        .setHTML(`
+          <div class="p-2">
+            <h4 class="font-semibold text-gray-800 mb-1">${bin.id}</h4>
+            <p class="text-sm text-gray-600 mb-1">Status: <span class="font-medium" style="color: ${color}">${bin.status.toUpperCase()}</span></p>
+            <p class="text-xs text-gray-500">Bin Location</p>
+          </div>
+        `)
+        .addTo(map.current);
+
+      marker.setPopup(popup);
+    });
+  };
 
   const addMarker = (lng, lat, locationData) => {
     // Remove existing marker
@@ -316,14 +391,16 @@ const MapLocationPicker = ({
     <div className={`map-location-picker ${className}`}>
       <div className="mb-4 flex justify-between items-center">
         <h3 className="text-lg font-semibold text-gray-700">Select Pickup Location</h3>
-        <button
-          type="button"
-          onClick={handleGetCurrentLocation}
-          disabled={isLoading}
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-        >
-          {isLoading ? 'Loading...' : 'Use Current Location'}
-        </button>
+        {!readOnly && (
+          <button
+            type="button"
+            onClick={handleGetCurrentLocation}
+            disabled={isLoading}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+          >
+            {isLoading ? 'Loading...' : 'Use Current Location'}
+          </button>
+        )}
       </div>
 
       <div className="relative">
@@ -332,6 +409,15 @@ const MapLocationPicker = ({
           className="w-full rounded-lg border border-gray-300"
           style={{ height }}
         />
+        
+        {!mapLoaded && !mapError && (
+          <div className="absolute inset-0 bg-gray-100 border-2 border-gray-200 rounded-lg flex items-center justify-center">
+            <div className="text-center p-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
+              <div className="text-gray-600 text-sm">Loading map...</div>
+            </div>
+          </div>
+        )}
         
         {mapError && (
           <div className="absolute inset-0 bg-red-50 border-2 border-red-200 rounded-lg flex items-center justify-center">
@@ -367,7 +453,7 @@ const MapLocationPicker = ({
       </div>
 
       <div className="mt-3 text-sm text-gray-600">
-        <p>💡 <strong>Tip:</strong> Click anywhere on the map to select your pickup location</p>
+        <p>💡 <strong>Tip:</strong> {readOnly ? 'This map shows bin locations for reference' : 'Click anywhere on the map to select your pickup location'}</p>
       </div>
 
       {selectedLocation && (

@@ -155,13 +155,41 @@ const PaymentForm = ({ amount, onPaymentSuccess, onPaymentError, isLoading = fal
       }
 
       // Create payment intent on backend
-      const response = await fetch('http://localhost:8080/api/payments/create-payment-intent', {
+      // Check if this is a bin request
+      const isBinRequest = pickupData?.requestId?.includes('bin_request');
+      
+      if (isBinRequest) {
+        // For bin requests, simulate successful payment without backend call
+        console.log('🎉 Simulating successful bin payment...');
+        const simulatedPaymentResult = {
+          id: `pi_simulated_${Date.now()}`,
+          status: 'succeeded',
+          amount: amount * 100, // Convert to cents
+          currency: 'usd',
+          client_secret: `pi_simulated_${Date.now()}_secret`
+        };
+        
+        setPaymentSuccess(true);
+        setIsProcessing(false);
+        
+        // Generate invoice
+        await generateInvoice(simulatedPaymentResult);
+        
+        // Call success handler
+        onPaymentSuccess(simulatedPaymentResult);
+        return;
+      }
+      
+      const endpoint = 'http://localhost:8080/api/payments/create-payment-intent';
+      console.log('Using endpoint:', endpoint, 'for request:', pickupData?.requestId);
+      
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
-          pickupRequestId: `pickup_${Date.now()}`,
+          pickupRequestId: pickupData?.requestId || `pickup_${Date.now()}`,
           amount: amount.toString(),
           currency: 'usd'
         })
