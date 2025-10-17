@@ -17,7 +17,26 @@
 import { ArrowRight } from "lucide-react";
 
 const DashboardCard = ({ dashboard, onNavigate }) => {
-  const IconComponent = dashboard.icon;
+  // Handle both React components and string icons (emojis)
+  const renderIcon = () => {
+    if (typeof dashboard.icon === 'string') {
+      // If it's a string (emoji), render it directly
+      return (
+        <span className="text-2xl">
+          {dashboard.icon}
+        </span>
+      );
+    } else {
+      // If it's a React component, render it
+      const IconComponent = dashboard.icon;
+      return (
+        <IconComponent
+          className="w-6 h-6"
+          style={{ color: dashboard.color }}
+        />
+      );
+    }
+  };
 
   const handleMouseEnter = (e) => {
     e.currentTarget.style.borderColor = dashboard.color;
@@ -28,7 +47,9 @@ const DashboardCard = ({ dashboard, onNavigate }) => {
   };
 
   const handleClick = () => {
-    onNavigate(dashboard.path);
+    if (onNavigate) {
+      onNavigate(dashboard.path);
+    }
   };
 
   return (
@@ -43,10 +64,7 @@ const DashboardCard = ({ dashboard, onNavigate }) => {
           className="w-12 h-12 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110"
           style={{ backgroundColor: `${dashboard.color}15` }}
         >
-          <IconComponent
-            className="w-6 h-6"
-            style={{ color: dashboard.color }}
-          />
+          {renderIcon()}
         </div>
         <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-all group-hover:translate-x-1" />
       </div>

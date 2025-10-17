@@ -93,28 +93,44 @@ const WorkerDashboard = () => {
       {/* Dashboard Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <DashboardCard
-          title="Collection Routes"
-          description="View assigned routes"
-          icon="🗺️"
-          color="bg-blue-500"
+          dashboard={{
+            title: "Collection Routes",
+            description: "View assigned routes",
+            icon: "🗺️",
+            color: "bg-blue-500",
+            path: "/worker/routes"
+          }}
+          onNavigate={() => setActiveNav('routes')}
         />
         <DashboardCard
-          title="Record Collection"
-          description="Log waste collection data"
-          icon="✅"
-          color="bg-green-500"
+          dashboard={{
+            title: "Record Collection",
+            description: "Log waste collection data",
+            icon: "✅",
+            color: "bg-green-500",
+            path: "/worker/collection"
+          }}
+          onNavigate={() => setActiveNav('collection')}
         />
         <DashboardCard
-          title="Bin Management"
-          description="Handle bin operations"
-          icon="🗑️"
-          color="bg-purple-500"
+          dashboard={{
+            title: "Bin Management",
+            description: "Handle bin operations",
+            icon: "🗑️",
+            color: "bg-purple-500",
+            path: "/worker/bins"
+          }}
+          onNavigate={() => setActiveNav('dashboard')}
         />
         <DashboardCard
-          title="Report Issues"
-          description="Submit field reports"
-          icon="⚠️"
-          color="bg-orange-500"
+          dashboard={{
+            title: "Report Issues",
+            description: "Submit field reports",
+            icon: "⚠️",
+            color: "bg-orange-500",
+            path: "/worker/reports"
+          }}
+          onNavigate={() => setActiveNav('dashboard')}
         />
       </div>
 
