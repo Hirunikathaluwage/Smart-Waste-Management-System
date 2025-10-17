@@ -93,3 +93,4 @@ public interface BinRepository extends MongoRepository<Bin, String> {
     List<Bin> findByTagType(String tagType);
 }
 
+
