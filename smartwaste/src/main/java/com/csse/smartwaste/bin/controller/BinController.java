@@ -197,5 +197,16 @@ public class BinController {
 
         return ResponseEntity.ok(stats);
     }
-}
 
+    /**
+     * Get activity summary grouped by zones
+     * SRP: Single responsibility - only handles activity summary HTTP request
+     * 
+     * @return ResponseEntity containing zone-wise activity summary
+     */
+    @GetMapping("/activity-summary")
+    public ResponseEntity<Map<String, Map<String, Object>>> getActivitySummary() {
+        Map<String, Map<String, Object>> activitySummary = binService.getActivitySummary();
+        return ResponseEntity.ok(activitySummary);
+    }
+}

@@ -119,32 +119,44 @@ const BusinessDashboard = () => {
             {/* Statistics Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
               <DashboardCard
-                title="Total Requests"
-                description={`${stats.totalRequests} pickup requests`}
-                icon="📋"
-                color="bg-blue-500"
-                value={stats.totalRequests}
+                dashboard={{
+                  title: "Total Requests",
+                  description: `${stats.totalRequests} pickup requests`,
+                  icon: "📋",
+                  color: "bg-blue-500",
+                  path: "/business/requests"
+                }}
+                onNavigate={() => setActiveNav('requests')}
               />
               <DashboardCard
-                title="Pending Requests"
-                description={`${stats.pendingRequests} awaiting action`}
-                icon="⏳"
-                color="bg-yellow-500"
-                value={stats.pendingRequests}
+                dashboard={{
+                  title: "Pending Requests",
+                  description: `${stats.pendingRequests} awaiting action`,
+                  icon: "⏳",
+                  color: "bg-yellow-500",
+                  path: "/business/requests"
+                }}
+                onNavigate={() => setActiveNav('requests')}
               />
               <DashboardCard
-                title="Completed"
-                description={`${stats.completedRequests} successful pickups`}
-                icon="✅"
-                color="bg-green-500"
-                value={stats.completedRequests}
+                dashboard={{
+                  title: "Completed",
+                  description: `${stats.completedRequests} successful pickups`,
+                  icon: "✅",
+                  color: "bg-green-500",
+                  path: "/business/requests"
+                }}
+                onNavigate={() => setActiveNav('requests')}
               />
               <DashboardCard
-                title="Total Spent"
-                description={`$${stats.totalSpent.toFixed(2)} on services`}
-                icon="💳"
-                color="bg-purple-500"
-                value={`$${stats.totalSpent.toFixed(2)}`}
+                dashboard={{
+                  title: "Total Spent",
+                  description: `$${stats.totalSpent.toFixed(2)} on services`,
+                  icon: "💳",
+                  color: "bg-purple-500",
+                  path: "/business/payments"
+                }}
+                onNavigate={() => setActiveNav('payments')}
               />
             </div>
 

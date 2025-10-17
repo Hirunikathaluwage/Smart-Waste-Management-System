@@ -203,253 +203,262 @@ const PickupRequestForm = ({ onSuccess, onCancel }) => {
 
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Request Waste Pickup</h2>
+    <div className="w-full max-w-none mx-auto p-2 bg-white rounded-lg shadow-lg">
+      <h2 className="text-xl font-bold text-gray-800 mb-2">Request Waste Pickup</h2>
       
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Waste Details Section */}
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">Waste Details</h3>
+      <form onSubmit={handleSubmit} className="space-y-2">
+        {/* Ultra-compact form layout using full width */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-2">
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Type of Waste *
-              </label>
-              <select
-                name="wasteType"
-                value={formData.wasteType}
-                onChange={handleInputChange}
-                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.wasteType ? 'border-red-500' : 'border-gray-300'
-                }`}
-              >
-                <option value="">Select waste type</option>
-                {wasteTypes.map(type => (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
-                  </option>
-                ))}
-              </select>
-              {errors.wasteType && <p className="text-red-500 text-sm mt-1">{errors.wasteType}</p>}
+          {/* Column 1 - Waste Details */}
+          <div className="space-y-1">
+            <div className="bg-gray-50 p-2 rounded">
+              <h3 className="text-sm font-semibold text-gray-700 mb-1">Waste Details</h3>
+              
+              <div className="space-y-1">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                    Type of Waste *
+                  </label>
+                  <select
+                    name="wasteType"
+                    value={formData.wasteType}
+                    onChange={handleInputChange}
+                    className={`w-full p-1.5 text-sm border rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${
+                      errors.wasteType ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  >
+                    <option value="">Select waste type</option>
+                    {wasteTypes.map(type => (
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.wasteType && <p className="text-red-500 text-xs mt-0.5">{errors.wasteType}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                    Weight (kg)
+                  </label>
+                  <input
+                    type="number"
+                    name="estimatedWeight"
+                    value={formData.estimatedWeight}
+                    onChange={handleInputChange}
+                    min="0"
+                    step="0.1"
+                    className="w-full p-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Weight"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                    Item Description *
+                  </label>
+                  <textarea
+                    name="itemDescription"
+                    value={formData.itemDescription}
+                    onChange={handleInputChange}
+                    rows={2}
+                    className={`w-full p-1.5 text-sm border rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${
+                      errors.itemDescription ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Describe items..."
+                  />
+                  {errors.itemDescription && <p className="text-red-500 text-xs mt-0.5">{errors.itemDescription}</p>}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Column 2 - Pickup Details */}
+          <div className="space-y-1">
+            <div className="bg-gray-50 p-2 rounded">
+              <h3 className="text-sm font-semibold text-gray-700 mb-1">Pickup Details</h3>
+              
+              <div className="space-y-1">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                    Pickup Type *
+                  </label>
+                  <select
+                    name="pickupType"
+                    value={formData.pickupType}
+                    onChange={handleInputChange}
+                    className={`w-full p-1.5 text-sm border rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${
+                      errors.pickupType ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  >
+                    {pickupTypes.map(type => (
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.pickupType && <p className="text-red-500 text-xs mt-0.5">{errors.pickupType}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                    Date & Time *
+                  </label>
+                  <input
+                    type="datetime-local"
+                    name="preferredDateTime"
+                    value={formData.preferredDateTime}
+                    onChange={handleInputChange}
+                    min={new Date().toISOString().slice(0, 16)}
+                    className={`w-full p-1.5 text-sm border rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${
+                      errors.preferredDateTime ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  />
+                  {errors.preferredDateTime && <p className="text-red-500 text-xs mt-0.5">{errors.preferredDateTime}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                    Location Description
+                  </label>
+                  <input
+                    type="text"
+                    name="pickupLocation"
+                    value={formData.pickupLocation}
+                    onChange={handleInputChange}
+                    className="w-full p-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="e.g., Front door, Backyard..."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                    Special Instructions
+                  </label>
+                  <input
+                    type="text"
+                    name="specialInstructions"
+                    value={formData.specialInstructions}
+                    onChange={handleInputChange}
+                    className="w-full p-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Special instructions..."
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Column 3 - Payment Details */}
+          <div className="space-y-1">
+            <div className="bg-gray-50 p-2 rounded">
+              <h3 className="text-sm font-semibold text-gray-700 mb-1">Payment Details</h3>
+              
+              <div className="space-y-1">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                    Payment Method *
+                  </label>
+                  <select
+                    name="paymentMethod"
+                    value={formData.paymentMethod}
+                    onChange={(e) => {
+                      handleInputChange(e);
+                      if (e.target.value === 'Card') {
+                        setShowPaymentForm(true);
+                      } else {
+                        setShowPaymentForm(false);
+                      }
+                    }}
+                    className={`w-full p-1.5 text-sm border rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${
+                      errors.paymentMethod ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  >
+                    {paymentMethods.map(method => (
+                      <option key={method.value} value={method.value}>
+                        {method.label}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.paymentMethod && <p className="text-red-500 text-xs mt-0.5">{errors.paymentMethod}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                    Reward Points
+                  </label>
+                  <input
+                    type="number"
+                    name="rewardPointsUsed"
+                    value={formData.rewardPointsUsed}
+                    onChange={handleInputChange}
+                    min="0"
+                    className="w-full p-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Points"
+                  />
+                </div>
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Estimated Weight (kg)
-              </label>
-              <input
-                type="number"
-                name="estimatedWeight"
-                value={formData.estimatedWeight}
-                onChange={handleInputChange}
-                min="0"
-                step="0.1"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter estimated weight"
+            {/* Fee Calculation - Minimal padding */}
+            {feeCalculation && (
+              <div className="bg-blue-50 p-2 rounded">
+                <h3 className="text-sm font-semibold text-blue-800 mb-1">Fee Calculation</h3>
+                <div className="space-y-0.5 text-xs">
+                  <div className="flex justify-between">
+                    <span>Base:</span>
+                    <span>${feeCalculation.baseAmount?.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Urgency:</span>
+                    <span>${feeCalculation.urgencyFee?.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Total:</span>
+                    <span>${feeCalculation.totalAmount?.toFixed(2)}</span>
+                  </div>
+                  {feeCalculation.rewardPointsUsed > 0 && (
+                    <div className="flex justify-between">
+                      <span>Points:</span>
+                      <span>-${(feeCalculation.rewardPointsUsed * 0.01).toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between font-semibold text-sm border-t pt-0.5">
+                    <span>Final:</span>
+                    <span>${feeCalculation.finalAmount?.toFixed(2)}</span>
+                  </div>
+                </div>
+                {isCalculating && <p className="text-blue-600 text-xs mt-1">Calculating...</p>}
+              </div>
+            )}
+          </div>
+
+          {/* Column 4 - Map */}
+          <div className="space-y-1">
+            <div className="bg-gray-50 p-2 rounded">
+              <h3 className="text-sm font-semibold text-gray-700 mb-1">Pickup Location</h3>
+              
+              <MapLocationPicker
+                onLocationSelect={handleLocationSelect}
+                initialLocation={selectedLocation}
+                height="250px"
+                className="mb-1"
               />
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Item Description *
-            </label>
-            <textarea
-              name="itemDescription"
-              value={formData.itemDescription}
-              onChange={handleInputChange}
-              rows={3}
-              className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                errors.itemDescription ? 'border-red-500' : 'border-gray-300'
-              }`}
-              placeholder="Describe the items to be picked up..."
-            />
-            {errors.itemDescription && <p className="text-red-500 text-sm mt-1">{errors.itemDescription}</p>}
-          </div>
-
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Special Instructions
-            </label>
-            <textarea
-              name="specialInstructions"
-              value={formData.specialInstructions}
-              onChange={handleInputChange}
-              rows={2}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Any special instructions for the pickup..."
-            />
-          </div>
-        </div>
-
-        {/* Pickup Details Section */}
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">Pickup Details</h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Pickup Type *
-              </label>
-              <select
-                name="pickupType"
-                value={formData.pickupType}
-                onChange={handleInputChange}
-                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.pickupType ? 'border-red-500' : 'border-gray-300'
-                }`}
-              >
-                {pickupTypes.map(type => (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
-                  </option>
-                ))}
-              </select>
-              {errors.pickupType && <p className="text-red-500 text-sm mt-1">{errors.pickupType}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Preferred Date & Time *
-              </label>
-              <input
-                type="datetime-local"
-                name="preferredDateTime"
-                value={formData.preferredDateTime}
-                onChange={handleInputChange}
-                min={new Date().toISOString().slice(0, 16)}
-                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.preferredDateTime ? 'border-red-500' : 'border-gray-300'
-                }`}
-              />
-              {errors.preferredDateTime && <p className="text-red-500 text-sm mt-1">{errors.preferredDateTime}</p>}
-            </div>
-          </div>
-        </div>
-
-        {/* Location Details Section */}
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">Location Details</h3>
-          
-          <MapLocationPicker
-            onLocationSelect={handleLocationSelect}
-            initialLocation={selectedLocation}
-            height="400px"
-            className="mb-4"
-          />
-          
-          {errors.location && (
-            <div className="mt-2 p-3 bg-red-50 border border-red-200 text-red-700 rounded">
-              {errors.location}
-            </div>
-          )}
-
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Pickup Location Description
-            </label>
-            <input
-              type="text"
-              name="pickupLocation"
-              value={formData.pickupLocation}
-              onChange={handleInputChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="e.g., Front door, Backyard, Gate, etc."
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Additional details about where to find the items at the selected location
-            </p>
-          </div>
-        </div>
-
-        {/* Payment Details Section */}
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">Payment Details</h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Payment Method *
-              </label>
-              <select
-                name="paymentMethod"
-                value={formData.paymentMethod}
-                onChange={(e) => {
-                  handleInputChange(e);
-                  if (e.target.value === 'Card') {
-                    setShowPaymentForm(true);
-                  } else {
-                    setShowPaymentForm(false);
-                  }
-                }}
-                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.paymentMethod ? 'border-red-500' : 'border-gray-300'
-                }`}
-              >
-                {paymentMethods.map(method => (
-                  <option key={method.value} value={method.value}>
-                    {method.label}
-                  </option>
-                ))}
-              </select>
-              {errors.paymentMethod && <p className="text-red-500 text-sm mt-1">{errors.paymentMethod}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Reward Points to Use
-              </label>
-              <input
-                type="number"
-                name="rewardPointsUsed"
-                value={formData.rewardPointsUsed}
-                onChange={handleInputChange}
-                min="0"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter reward points"
-              />
+              
+              {errors.location && (
+                <div className="mt-1 p-1 bg-red-50 border border-red-200 text-red-700 rounded text-xs">
+                  {errors.location}
+                </div>
+              )}
             </div>
           </div>
         </div>
       </form>
 
-      {/* Fee Calculation Display - Outside main form */}
-      {feeCalculation && (
-        <div className="bg-blue-50 p-4 rounded-lg">
-          <h3 className="text-lg font-semibold text-blue-800 mb-2">Fee Calculation</h3>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span>Base Amount:</span>
-              <span>${feeCalculation.baseAmount?.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Urgency Fee:</span>
-              <span>${feeCalculation.urgencyFee?.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Total Amount:</span>
-              <span>${feeCalculation.totalAmount?.toFixed(2)}</span>
-            </div>
-            {feeCalculation.rewardPointsUsed > 0 && (
-              <div className="flex justify-between">
-                <span>Reward Points Used:</span>
-                <span>-${(feeCalculation.rewardPointsUsed * 0.01).toFixed(2)}</span>
-              </div>
-            )}
-            <div className="flex justify-between font-semibold text-lg border-t pt-2">
-              <span>Final Amount:</span>
-              <span>${feeCalculation.finalAmount?.toFixed(2)}</span>
-            </div>
-          </div>
-          {isCalculating && <p className="text-blue-600 text-sm mt-2">Calculating fees...</p>}
-        </div>
-      )}
-
-      {/* Stripe Payment Form - Outside main form to prevent conflicts */}
+      {/* Stripe Payment Form - Minimal padding */}
       {showPaymentForm && feeCalculation && (
-        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <h4 className="text-lg font-semibold text-blue-800 mb-4">💳 Credit/Debit Card Payment</h4>
+        <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded">
+          <h4 className="text-sm font-semibold text-blue-800 mb-1">💳 Card Payment</h4>
           <StripePaymentForm
             amount={feeCalculation.finalAmount}
             onPaymentSuccess={handlePaymentSuccess}
@@ -469,19 +478,19 @@ const PickupRequestForm = ({ onSuccess, onCancel }) => {
         </div>
       )}
 
-      {/* Error Messages */}
+      {/* Error Messages - Minimal padding */}
       {errors.submit && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div className="mt-2 bg-red-50 border border-red-200 text-red-700 px-2 py-1 rounded text-xs">
           {errors.submit}
         </div>
       )}
 
-      {/* Action Buttons */}
-      <div className="flex justify-end space-x-4 mt-6">
+      {/* Action Buttons - Minimal padding */}
+      <div className="flex flex-col sm:flex-row justify-end gap-1 sm:gap-2 mt-2">
         <button
           type="button"
           onClick={onCancel}
-          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+          className="w-full sm:w-auto px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition-colors"
         >
           Cancel
         </button>
@@ -489,7 +498,7 @@ const PickupRequestForm = ({ onSuccess, onCancel }) => {
           type="button"
           onClick={handleSubmit}
           disabled={isSubmitting || isCalculating}
-          className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full sm:w-auto px-3 py-1.5 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? 'Submitting...' : 'Submit Request'}
         </button>

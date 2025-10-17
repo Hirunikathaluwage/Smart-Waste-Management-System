@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
 
 /**
  * Bin Service - Handles business logic for bin operations
@@ -175,6 +178,156 @@ public class BinService {
      */
     public long getBinCountByStatus(Bin.BinStatus status) {
         return binRepository.countByStatus(status);
+    }
+
+    /**
+     * Get activity summary grouped by zones
+     * SRP: Single responsibility - only handles activity summary calculation
+     * 
+     * @return Map containing zone-wise activity summary
+     */
+    public Map<String, Map<String, Object>> getActivitySummary() {
+        List<Bin> allBins = binRepository.findAll();
+        
+        // Group bins by geographical zones based on coordinates
+        Map<String, List<Bin>> zoneGroups = groupBinsByZone(allBins);
+        
+        Map<String, Map<String, Object>> activitySummary = new HashMap<>();
+        
+        for (Map.Entry<String, List<Bin>> entry : zoneGroups.entrySet()) {
+            String zoneName = entry.getKey();
+            List<Bin> zoneBins = entry.getValue();
+            
+            // Calculate counts by status
+            long activeCount = zoneBins.stream()
+                .filter(bin -> bin.getStatus() == Bin.BinStatus.ACTIVE)
+                .count();
+            
+            long collectedCount = zoneBins.stream()
+                .filter(bin -> bin.getStatus() == Bin.BinStatus.COLLECTED)
+                .count();
+            
+            long damagedCount = zoneBins.stream()
+                .filter(bin -> bin.getStatus() == Bin.BinStatus.DAMAGED)
+                .count();
+            
+            long totalCount = zoneBins.size();
+            
+            // Determine overall status
+            String overallStatus = determineOverallStatus(activeCount, collectedCount, damagedCount, totalCount);
+            
+            Map<String, Object> zoneData = new HashMap<>();
+            zoneData.put("totalBins", totalCount);
+            zoneData.put("activeBins", activeCount);
+            zoneData.put("collectedBins", collectedCount);
+            zoneData.put("damagedBins", damagedCount);
+            zoneData.put("status", overallStatus);
+            zoneData.put("scheduledPickups", activeCount + damagedCount); // Bins that need collection
+            
+            activitySummary.put(zoneName, zoneData);
+        }
+        
+        return activitySummary;
+    }
+
+    /**
+     * Group bins by geographical zones
+     * SRP: Single responsibility - only handles zone grouping logic
+     * 
+     * @param bins list of all bins
+     * @return Map of zone name to list of bins in that zone
+     */
+    private Map<String, List<Bin>> groupBinsByZone(List<Bin> bins) {
+        Map<String, List<Bin>> zoneGroups = new HashMap<>();
+        
+        // Initialize zones
+        zoneGroups.put("Downtown Area - Zone A", new ArrayList<>());
+        zoneGroups.put("Residential Area - Zone B", new ArrayList<>());
+        zoneGroups.put("Business District - Zone C", new ArrayList<>());
+        
+        // Group bins by coordinates (simplified zone assignment)
+        for (Bin bin : bins) {
+            if (bin.getLatitude() != null && bin.getLongitude() != null) {
+                String zone = determineZoneByCoordinates(bin.getLatitude(), bin.getLongitude());
+                zoneGroups.get(zone).add(bin);
+            } else {
+                // Fallback to address-based grouping
+                String zone = determineZoneByAddress(bin.getAddress());
+                zoneGroups.get(zone).add(bin);
+            }
+        }
+        
+        return zoneGroups;
+    }
+
+    /**
+     * Determine zone based on coordinates
+     * SRP: Single responsibility - only handles coordinate-based zone determination
+     * 
+     * @param latitude bin latitude
+     * @param longitude bin longitude
+     * @return zone name
+     */
+    private String determineZoneByCoordinates(Double latitude, Double longitude) {
+        // Simplified zone determination based on coordinates
+        // In a real implementation, this would use proper geographical boundaries
+        
+        if (latitude >= 6.9 && latitude <= 6.95 && longitude >= 79.85 && longitude <= 79.9) {
+            return "Downtown Area - Zone A";
+        } else if (latitude >= 6.85 && latitude <= 6.9 && longitude >= 79.8 && longitude <= 79.85) {
+            return "Residential Area - Zone B";
+        } else {
+            return "Business District - Zone C";
+        }
+    }
+
+    /**
+     * Determine zone based on address
+     * SRP: Single responsibility - only handles address-based zone determination
+     * 
+     * @param address bin address
+     * @return zone name
+     */
+    private String determineZoneByAddress(String address) {
+        if (address == null) {
+            return "Business District - Zone C";
+        }
+        
+        String lowerAddress = address.toLowerCase();
+        
+        if (lowerAddress.contains("downtown") || lowerAddress.contains("city center") || lowerAddress.contains("commercial")) {
+            return "Downtown Area - Zone A";
+        } else if (lowerAddress.contains("residential") || lowerAddress.contains("housing") || lowerAddress.contains("apartment")) {
+            return "Residential Area - Zone B";
+        } else {
+            return "Business District - Zone C";
+        }
+    }
+
+    /**
+     * Determine overall status for a zone
+     * SRP: Single responsibility - only handles status determination logic
+     * 
+     * @param activeCount number of active bins
+     * @param collectedCount number of collected bins
+     * @param damagedCount number of damaged bins
+     * @param totalCount total number of bins
+     * @return overall status string
+     */
+    private String determineOverallStatus(long activeCount, long collectedCount, long damagedCount, long totalCount) {
+        if (totalCount == 0) {
+            return "NO_DATA";
+        }
+        
+        double completionRate = (double) collectedCount / totalCount;
+        
+        if (completionRate >= 0.8) {
+            return "COMPLETED";
+        } else if (completionRate >= 0.3) {
+            return "IN_PROGRESS";
+        } else {
+            return "PENDING";
+        }
     }
 
     /**
