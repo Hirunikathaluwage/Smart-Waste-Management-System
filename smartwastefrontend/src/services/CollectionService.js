@@ -214,6 +214,36 @@ class CollectionService {
       throw new Error(`Failed to check service health: ${error.message}`);
     }
   }
+
+  /**
+   * Reset a collection record (remove from collected list)
+   * SRP: Single responsibility - only resets collection records
+   * 
+   * @param {string} binId - The bin ID to reset
+   * @param {string} workerId - The worker ID
+   * @returns {Promise<Object>} Reset confirmation
+   */
+  async resetCollectionRecord(binId, workerId) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/collections/reset`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ binId, workerId }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.error('Error resetting collection record:', error);
+      throw new Error(`Failed to reset collection record: ${error.message}`);
+    }
+  }
 }
 
 // Export singleton instance

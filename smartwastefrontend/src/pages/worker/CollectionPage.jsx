@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from "react";
-import {
-  FeedbackDisplay,
-  ProgressIndicator,
-  SensorDataDisplay,
-  CollectionTable,
-} from "../../components/collection/CollectionComponents";
-import NavigationMap from "../../components/collection/NavigationMap";
-import GPSPermissionDialog from "../../components/common/GPSPermissionDialog";
-import audioFeedbackService from "../../services/AudioFeedbackService";
-import mockIoTSensorService from "../../services/MockIoTSensorService";
-import binService from "../../services/BinService";
-import collectionService from "../../services/CollectionService";
-import RouteConfigService from "../../services/RouteConfig";
-import locationService from "../../services/LocationService";
+import React, { useState, useEffect } from 'react';
+import { FeedbackDisplay, ProgressIndicator, SensorDataDisplay, CollectionTable } from '../../components/collection/CollectionComponents';
+import NavigationMap from '../../components/collection/NavigationMap';
+import GPSPermissionDialog from '../../components/common/GPSPermissionDialog';
+import FullSummaryModal from '../../components/collection/FullSummaryModal';
+import { ModalBackdropComponent } from '../../components/common/ModalBackdrop';
+import audioFeedbackService from '../../services/AudioFeedbackService';
+import mockIoTSensorService from '../../services/MockIoTSensorService';
+import binService from '../../services/BinService';
+import collectionService from '../../services/CollectionService';
+import RouteConfigService from '../../services/RouteConfig';
+import RouteSummaryService from '../../services/RouteSummaryService';
+import SessionService from '../../services/SessionService';
+import DailyResetService from '../../services/DailyResetService';
+import locationService from '../../services/LocationService';
 
 // Simple SVG icons to avoid external dependencies - follows SRP for icon management
 const CheckCircleIcon = ({ className }) => (
@@ -134,8 +134,13 @@ const CollectionPage = () => {
   const [isLocationTracking, setIsLocationTracking] = useState(false);
   const [showNavigationMap, setShowNavigationMap] = useState(false);
   const [showGPSPermissionDialog, setShowGPSPermissionDialog] = useState(false);
+  const [showResetConfirmation, setShowResetConfirmation] = useState(false);
+  const [binToReset, setBinToReset] = useState(null);
   const [hasRequestedPermission, setHasRequestedPermission] = useState(false);
   const [isRefreshingLocation, setIsRefreshingLocation] = useState(false);
+  const [sessionStartTime, setSessionStartTime] = useState(null);
+  const [currentRouteSummary, setCurrentRouteSummary] = useState(null);
+  const [showFullSummary, setShowFullSummary] = useState(false);
 
   /**
    * Helper function to get bin status styling - follows SRP for status display logic
@@ -209,15 +214,39 @@ const CollectionPage = () => {
         setAvailableBins(bins);
 
         // Load today's collection records
-        const todayCollections =
-          await collectionService.getTodayCollectionRecords(workerId);
-        setCollectedBins(todayCollections);
-
-        // Calculate total weight from saved collections
-        const totalWeightFromSaved = todayCollections.reduce(
-          (sum, record) => sum + (record.weight || 0),
-          0
-        );
+        const todayCollections = await collectionService.getTodayCollectionRecords(workerId);
+        
+        // Load any locally collected bins that might not be in backend yet
+        const localCollections = JSON.parse(localStorage.getItem('localCollections') || '[]');
+        const allCollections = [...todayCollections, ...localCollections];
+        
+        // Normalize data structure to ensure consistent field names
+        const normalizedCollections = allCollections.map(collection => ({
+          binId: collection.binId,
+          location: collection.location || collection.binLocation || collection.address || 'Unknown Location',
+          timestamp: collection.timestamp || collection.dateTime || collection.collectedAt || new Date().toLocaleString(),
+          weight: collection.weight || 0,
+          fillLevel: collection.fillLevel || 'N/A',
+          status: collection.status || 'Collected',
+          reason: collection.reason || null
+        }));
+        
+        // Remove duplicates based on binId
+        const uniqueCollections = normalizedCollections.reduce((acc, current) => {
+          const existingIndex = acc.findIndex(item => item.binId === current.binId);
+          if (existingIndex === -1) {
+            acc.push(current);
+          } else {
+            // Prefer backend data over local data
+            acc[existingIndex] = current.binId.startsWith('BIN-') ? current : acc[existingIndex];
+          }
+          return acc;
+        }, []);
+        
+        setCollectedBins(uniqueCollections);
+        
+        // Calculate total weight from all collections
+        const totalWeightFromSaved = uniqueCollections.reduce((sum, record) => sum + (record.weight || 0), 0);
         setTotalWeight(totalWeightFromSaved);
 
         setError(null);
@@ -226,39 +255,19 @@ const CollectionPage = () => {
         setError("Failed to load data from server");
 
         // Fallback to mock data if backend is unavailable
+        const sessionResetBins = JSON.parse(sessionStorage.getItem('sessionResetBins') || '[]');
         const mockBins = [
-          {
-            binId: "BIN-001",
-            address: "123 Galle Road, Colombo 03",
-            ownerId: "RES-001",
-            status: "COLLECTED",
-          },
-          {
-            binId: "BIN-002",
-            address: "456 Union Place, Colombo 02",
-            ownerId: "RES-002",
-            status: "ACTIVE",
-          },
-          {
-            binId: "BIN-003",
-            address: "789 Main Street, Colombo 11",
-            ownerId: "RES-003",
-            status: "DAMAGED",
-          },
-          {
-            binId: "BIN-004",
-            address: "321 Marine Drive, Colombo 06",
-            ownerId: "RES-004",
-            status: "ACTIVE",
-          },
-          {
-            binId: "BIN-005",
-            address: "654 Galle Road, Mount Lavinia",
-            ownerId: "RES-005",
-            status: "ACTIVE",
-          },
+          { binId: 'BIN-001', address: '123 Galle Road, Colombo 03', ownerId: 'RES-001', status: sessionResetBins.includes('BIN-001') ? 'ACTIVE' : 'COLLECTED' },
+          { binId: 'BIN-002', address: '456 Union Place, Colombo 02', ownerId: 'RES-002', status: 'ACTIVE' },
+          { binId: 'BIN-003', address: '789 Main Street, Colombo 11', ownerId: 'RES-003', status: 'DAMAGED' },
+          { binId: 'BIN-004', address: '321 Marine Drive, Colombo 06', ownerId: 'RES-004', status: 'ACTIVE' },
+          { binId: 'BIN-005', address: '654 Galle Road, Mount Lavinia', ownerId: 'RES-005', status: 'ACTIVE' },
         ];
         setAvailableBins(mockBins);
+        
+        // Set empty collected bins for fallback to respect reset state
+        setCollectedBins([]);
+        setTotalWeight(0);
       } finally {
         setLoading(false);
       }
@@ -323,18 +332,43 @@ const CollectionPage = () => {
     }
   }, [isLocationTracking, currentLocation]);
 
-  // Timer effect - follows SRP for time tracking
+  // Initialize session with daily reset - follows SRP for session management
   useEffect(() => {
-    const startTime = Date.now();
+    const sessionData = SessionService.initializeSession();
+    setSessionStartTime(sessionData.startTime);
+  }, []);
+
+  // Timer effect with daily reset check - follows SRP for time tracking
+  useEffect(() => {
+    if (!sessionStartTime) return;
+
     const timer = setInterval(() => {
-      const elapsed = Date.now() - startTime;
-      const hours = Math.floor(elapsed / 3600000);
-      const minutes = Math.floor((elapsed % 3600000) / 60000);
-      setElapsedTime(`${hours}h ${minutes}m`);
-    }, 60000); // Update every minute
+      const wasReset = DailyResetService.checkAndExecuteDailyReset(() => {
+        setSessionStartTime(SessionService.getCurrentSessionStartTime());
+      });
+      
+      if (wasReset) {
+        // Reset collection data on daily reset
+        const resetData = DailyResetService.getDefaultResetData();
+        setCollectedBins(resetData.collectedBins);
+        setTotalWeight(resetData.totalWeight);
+        setRouteProgress(resetData.routeProgress);
+      }
+      
+      const elapsedTime = RouteSummaryService.calculateElapsedTime(sessionStartTime);
+      setElapsedTime(elapsedTime);
+    }, SessionService.CONFIG.UPDATE_INTERVAL);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [sessionStartTime]);
+
+  // Calculate current route summary - follows SRP for summary calculation
+  useEffect(() => {
+    const currentRouteId = localStorage.getItem('selectedRouteId');
+    const summary = RouteSummaryService.getCurrentRouteSummary(collectedBins, currentRouteId, sessionStartTime);
+    setCurrentRouteSummary(summary);
+  }, [collectedBins, sessionStartTime]);
+
 
   // Audio feedback system - follows SRP for feedback handling
   const playFeedbackSound = (type) => {
@@ -466,34 +500,7 @@ const CollectionPage = () => {
       return;
     }
 
-    // Location verification - follows SRP for location validation
-    if (currentLocation && bin.latitude && bin.longitude) {
-      const distance = locationService.calculateDistance(currentLocation, {
-        latitude: bin.latitude,
-        longitude: bin.longitude,
-      });
-
-      if (distance > 50) {
-        // 50 meters threshold
-        setFeedback({
-          type: "warning",
-          message: `You are ${Math.round(distance)}m away from ${
-            bin.binId
-          }. Are you sure you're at the correct location?`,
-          options: [
-            { text: "Cancel", type: "secondary", onClick: () => setBinId("") },
-            {
-              text: "Continue Anyway",
-              type: "primary",
-              onClick: () => proceedWithCollection(bin),
-            },
-          ],
-        });
-        playFeedbackSound("warning");
-        return;
-      }
-    }
-
+    // Proceed directly with collection - location verification removed
     proceedWithCollection(bin);
   };
 
@@ -546,8 +553,11 @@ const CollectionPage = () => {
       }
     }
 
-    // Check for sensor failure (10% chance)
-    if (Math.random() < 0.1) {
+    // Check for sensor failure - BIN-003 always fails, others have 10% chance
+    const isBin003 = binId.toUpperCase() === 'BIN-003';
+    const shouldSimulateSensorFailure = isBin003 || Math.random() < 0.1;
+    
+    if (shouldSimulateSensorFailure) {
       setFeedback({
         type: "warning",
         message: "Sensor Error - Switch to Manual Entry",
@@ -603,10 +613,15 @@ const CollectionPage = () => {
         reason: null,
       };
 
-      setCollectedBins((prev) => [...prev, localCollection]);
-      setTotalWeight((prev) => prev + sensorData.weight);
-      setRouteProgress((prev) => ({ ...prev, collected: prev.collected + 1 }));
-
+      setCollectedBins(prev => [...prev, localCollection]);
+      setTotalWeight(prev => prev + sensorData.weight);
+      setRouteProgress(prev => ({ ...prev, collected: prev.collected + 1 }));
+      
+      // Save to localStorage for persistence
+      const currentCollections = JSON.parse(localStorage.getItem('localCollections') || '[]');
+      const updatedCollections = [...currentCollections, localCollection];
+      localStorage.setItem('localCollections', JSON.stringify(updatedCollections));
+      
       setFeedback({
         type: "success",
         message: "✓ Collection Recorded and Saved Successfully",
@@ -632,10 +647,15 @@ const CollectionPage = () => {
         reason: null,
       };
 
-      setCollectedBins((prev) => [...prev, localCollection]);
-      setTotalWeight((prev) => prev + sensorData.weight);
-      setRouteProgress((prev) => ({ ...prev, collected: prev.collected + 1 }));
-
+      setCollectedBins(prev => [...prev, localCollection]);
+      setTotalWeight(prev => prev + sensorData.weight);
+      setRouteProgress(prev => ({ ...prev, collected: prev.collected + 1 }));
+      
+      // Save to localStorage for persistence
+      const currentCollections = JSON.parse(localStorage.getItem('localCollections') || '[]');
+      const updatedCollections = [...currentCollections, localCollection];
+      localStorage.setItem('localCollections', JSON.stringify(updatedCollections));
+      
       setFeedback({
         type: "success",
         message: "✓ Collection Recorded (Saved Locally)",
@@ -678,11 +698,10 @@ const CollectionPage = () => {
 
   // Manual entry handler - follows SRP for manual data entry
   const handleManualEntry = () => {
+    const bin = availableBins.find(b => b.binId === binId.toUpperCase());
     const collection = {
       binId: binId.toUpperCase(),
-      location:
-        mockBins.find((b) => b.id === binId.toUpperCase())?.location ||
-        "Unknown",
+      location: bin?.address || 'Unknown',
       timestamp: new Date().toLocaleString(),
       weight: manualWeight,
       fillLevel: "Manual Entry",
@@ -690,10 +709,15 @@ const CollectionPage = () => {
       reason: "Sensor failure",
     };
 
-    setCollectedBins((prev) => [...prev, collection]);
-    setTotalWeight((prev) => prev + manualWeight);
-    setRouteProgress((prev) => ({ ...prev, collected: prev.collected + 1 }));
-
+    setCollectedBins(prev => [...prev, collection]);
+    setTotalWeight(prev => prev + manualWeight);
+    setRouteProgress(prev => ({ ...prev, collected: prev.collected + 1 }));
+    
+    // Save to localStorage for persistence
+    const currentCollections = JSON.parse(localStorage.getItem('localCollections') || '[]');
+    const updatedCollections = [...currentCollections, collection];
+    localStorage.setItem('localCollections', JSON.stringify(updatedCollections));
+    
     setFeedback({
       type: "success",
       message: "✓ Manual Collection Recorded",
@@ -713,12 +737,11 @@ const CollectionPage = () => {
       "Not Present - Bin not at location",
     ];
     const reason = reasons[Math.floor(Math.random() * reasons.length)];
-
+    
+    const bin = availableBins.find(b => b.binId === binId.toUpperCase());
     const missedBin = {
       binId: binId.toUpperCase(),
-      location:
-        mockBins.find((b) => b.id === binId.toUpperCase())?.location ||
-        "Unknown",
+      location: bin?.address || 'Unknown',
       timestamp: new Date().toLocaleString(),
       weight: 0,
       fillLevel: "N/A",
@@ -726,9 +749,14 @@ const CollectionPage = () => {
       reason: reason,
     };
 
-    setCollectedBins((prev) => [...prev, missedBin]);
-    setRouteProgress((prev) => ({ ...prev, collected: prev.collected + 1 }));
-
+    setCollectedBins(prev => [...prev, missedBin]);
+    setRouteProgress(prev => ({ ...prev, collected: prev.collected + 1 }));
+    
+    // Save to localStorage for persistence
+    const currentCollections = JSON.parse(localStorage.getItem('localCollections') || '[]');
+    const updatedCollections = [...currentCollections, missedBin];
+    localStorage.setItem('localCollections', JSON.stringify(updatedCollections));
+    
     setFeedback({
       type: "warning",
       message: `Bin marked as missed: ${reason}`,
@@ -736,6 +764,99 @@ const CollectionPage = () => {
     });
 
     setBinId("");
+  };
+
+  // Reset bin handler - follows SRP for reset functionality
+  const handleResetBin = (binId) => {
+    setBinToReset(binId);
+    setShowResetConfirmation(true);
+  };
+
+  // Confirm reset handler - follows SRP for confirmation logic
+  const handleConfirmReset = async () => {
+    if (!binToReset) return;
+
+    // Store the bin to remove for weight calculation
+    const binToRemove = collectedBins.find(bin => bin.binId === binToReset);
+    const binWeight = binToRemove?.weight || 0;
+
+    try {
+      // Try to reset via API first
+      await collectionService.resetCollectionRecord(binToReset, workerId);
+      
+      // Update local state
+      setCollectedBins(prev => prev.filter(bin => bin.binId !== binToReset));
+      
+      // Update total weight
+      setTotalWeight(prev => prev - binWeight);
+      
+      // Update route progress
+      setRouteProgress(prev => ({ ...prev, collected: prev.collected - 1 }));
+      
+      // Update bin status in available bins to ACTIVE
+      setAvailableBins(prev => prev.map(bin => 
+        bin.binId === binToReset ? { ...bin, status: 'ACTIVE' } : bin
+      ));
+      
+      // Remove from localStorage
+      const currentCollections = JSON.parse(localStorage.getItem('localCollections') || '[]');
+      const filteredCollections = currentCollections.filter(bin => bin.binId !== binToReset);
+      localStorage.setItem('localCollections', JSON.stringify(filteredCollections));
+      
+      setFeedback({
+        type: 'success',
+        message: `Bin ${binToReset} has been reset and is now available for scanning again`,
+        options: []
+      });
+      
+    } catch (error) {
+      console.error('Failed to reset bin via API:', error);
+      
+      // Fallback to local reset with persistence
+      setCollectedBins(prev => prev.filter(bin => bin.binId !== binToReset));
+      setTotalWeight(prev => prev - binWeight);
+      setRouteProgress(prev => ({ ...prev, collected: prev.collected - 1 }));
+      
+      // Update bin status in available bins to ACTIVE
+      setAvailableBins(prev => prev.map(bin => 
+        bin.binId === binToReset ? { ...bin, status: 'ACTIVE' } : bin
+      ));
+      
+      // Remove from localStorage
+      const currentCollections = JSON.parse(localStorage.getItem('localCollections') || '[]');
+      const filteredCollections = currentCollections.filter(bin => bin.binId !== binToReset);
+      localStorage.setItem('localCollections', JSON.stringify(filteredCollections));
+      
+      setFeedback({
+        type: 'success',
+        message: `Bin ${binToReset} has been reset locally and is now available for scanning again`,
+        options: []
+      });
+    }
+    
+    setShowResetConfirmation(false);
+    setBinToReset(null);
+  };
+
+  // Cancel reset handler - follows SRP for cancellation logic
+  const handleCancelReset = () => {
+    setShowResetConfirmation(false);
+    setBinToReset(null);
+  };
+
+  // Handle full summary modal - follows SRP for modal management
+  const handleShowFullSummary = () => {
+    setShowFullSummary(true);
+  };
+
+  // Handle close full summary modal - follows SRP for modal management
+  const handleCloseFullSummary = () => {
+    setShowFullSummary(false);
+  };
+
+  // Get comprehensive summary data - follows SRP for data preparation
+  const getFullSummaryData = () => {
+    return RouteSummaryService.getAllRoutesSummary(collectedBins, sessionStartTime);
   };
 
   // Progress calculation - follows SRP for progress tracking
@@ -938,7 +1059,10 @@ const CollectionPage = () => {
             {sensorData && <SensorDataDisplay sensorData={sensorData} />}
 
             {/* Collected Bins Table */}
-            <CollectionTable collectedBins={collectedBins} />
+            <CollectionTable 
+              collectedBins={collectedBins} 
+              onResetBin={handleResetBin}
+            />
 
             {/* Navigation Map */}
             {showNavigationMap && (
@@ -970,55 +1094,47 @@ const CollectionPage = () => {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* End of Shift Summary */}
+            
+            {/* Current Route Summary */}
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                End-of-Shift Summary
-              </h2>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Bins Collected:</span>
-                  <span className="font-semibold">
-                    {routeProgress.collected}/{routeProgress.total} (
-                    {progressPercentage}%)
-                  </span>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Current Route Summary</h2>
+              {currentRouteSummary ? (
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Bins Collected:</span>
+                    <span className="font-semibold">{currentRouteSummary.binsCollected}/{currentRouteSummary.totalBins} ({currentRouteSummary.completionPercentage}%)</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Total Weight:</span>
+                    <span className="font-semibold">{currentRouteSummary.totalWeight} kg</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Time Taken:</span>
+                    <span className="font-semibold">{currentRouteSummary.elapsedTime}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Missed Bins:</span>
+                    <span className="font-semibold">{currentRouteSummary.missedBins}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Override Collections:</span>
+                    <span className="font-semibold">{currentRouteSummary.overrideCollections}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Route:</span>
+                    <span className="font-semibold">{currentRouteSummary.routeName}</span>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Total Weight:</span>
-                  <span className="font-semibold">{totalWeight} kg</span>
+              ) : (
+                <div className="text-center py-4 text-gray-500">
+                  <p className="text-sm">No route selected</p>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Time Taken:</span>
-                  <span className="font-semibold">{elapsedTime}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Missed Bins:</span>
-                  <span className="font-semibold">
-                    {collectedBins.filter((b) => b.status === "Missed").length}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">
-                    Override Collections:
-                  </span>
-                  <span className="font-semibold">
-                    {
-                      collectedBins.filter(
-                        (b) => b.status === "Override Collection"
-                      ).length
-                    }
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Route:</span>
-                  <span className="font-semibold">{getCurrentRouteName()}</span>
-                </div>
-              </div>
+              )}
               <button
-                onClick={() => setShowSummary(!showSummary)}
+                onClick={() => setShowFullSummary(true)}
                 className="w-full mt-4 bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors"
               >
-                {showSummary ? "Hide Details" : "View Full Summary"}
+                View Full Summary
               </button>
             </div>
 
@@ -1192,6 +1308,56 @@ const CollectionPage = () => {
         onClose={() => setShowGPSPermissionDialog(false)}
         onPermissionGranted={handleGPSPermissionGranted}
         onPermissionDenied={handleGPSPermissionDenied}
+      />
+
+      {/* Reset Confirmation Dialog */}
+      <ModalBackdropComponent
+        isOpen={showResetConfirmation}
+        onClose={handleCancelReset}
+      >
+        <div className="flex items-center justify-center min-h-screen p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full border border-gray-200">
+            <div className="px-5 py-4 border-b border-gray-100">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                  <ExclamationTriangleIcon className="w-4 h-4 text-red-600" />
+                </div>
+                <h3 className="text-base font-semibold text-gray-900">Reset Bin Collection</h3>
+              </div>
+            </div>
+            <div className="px-5 py-4">
+              <p className="text-gray-700 mb-3 text-sm">
+                Are you sure you want to reset bin <span className="font-semibold text-gray-900 bg-gray-100 px-2 py-1 rounded text-xs">{binToReset}</span>?
+              </p>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                <p className="text-xs text-blue-800">
+                  <strong>What this does:</strong> Removes the bin from your collected list and makes it available for scanning again.
+                </p>
+              </div>
+              <div className="flex justify-end space-x-2">
+                <button
+                  onClick={handleCancelReset}
+                  className="px-3 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmReset}
+                  className="px-3 py-2 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
+                >
+                  Reset Bin
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ModalBackdropComponent>
+
+      {/* Full Summary Modal */}
+      <FullSummaryModal
+        isOpen={showFullSummary}
+        onClose={handleCloseFullSummary}
+        summaryData={getFullSummaryData()}
       />
     </div>
   );

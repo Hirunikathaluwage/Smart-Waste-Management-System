@@ -59,10 +59,6 @@ const RouteDetailsForm = ({ selectedRouteId, onRouteChange, className = '' }) =>
   return (
     <div className={`route-details-form ${className}`}>
       <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex items-center space-x-2 mb-6">
-          <TruckIcon className="w-6 h-6 text-green-600" />
-          <h2 className="text-xl font-semibold text-gray-900">Pickup Routes</h2>
-        </div>
 
         <div className="space-y-6">
           {/* Route Name - Full Width for Better Visibility */}
@@ -304,23 +300,6 @@ const PickupRoutesPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
-                <TruckIcon className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Pickup Routes</h1>
-                <p className="text-sm text-gray-600">Manage and visualize waste collection routes</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
