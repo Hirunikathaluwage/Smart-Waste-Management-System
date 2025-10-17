@@ -41,7 +41,6 @@ const AdminDashboard = () => {
     { id: 'pickups', label: 'Special Pickups', icon: Package },
     { id: 'routes', label: 'Route Changes', icon: Truck },
     { id: 'bins', label: 'Bin Requests', icon: Trash2 },
-    { id: 'approvals', label: 'Approvals', icon: CheckSquare },
     { id: 'analytics', label: 'Analytics', icon: LineChart },
   ];
 
@@ -141,6 +140,7 @@ const AdminDashboard = () => {
   const handleNavClick = (navId) => {
     setActiveNav(navId);
     if (navId === 'bins') navigate('/admin/bins');
+    else if (navId === 'pickups') navigate('/admin/pickups');
     else if (navId === 'analytics') navigate('/admin/analytics');
     else if (navId === 'reports') navigate('/admin/dashboard');
   };
@@ -214,30 +214,6 @@ const AdminDashboard = () => {
                 );
               })}
             </div>
-          </div>
-
-          {/* Analytics Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {statistics.map((stat) => {
-              const IconComponent = stat.icon;
-              return (
-                <div key={stat.id} className="bg-white rounded-lg shadow-md p-6">
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <p className="text-sm text-gray-600">{stat.label}</p>
-                      <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
-                      <p className="text-xs text-gray-500 mt-1">{stat.change}</p>
-                    </div>
-                    <div
-                      className="w-10 h-10 rounded-lg flex items-center justify-center"
-                      style={{ backgroundColor: `${stat.iconColor}15` }}
-                    >
-                      <IconComponent className="w-5 h-5" style={{ color: stat.iconColor }} />
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
           </div>
         </>
       ) : (
@@ -319,7 +295,7 @@ const AdminDashboard = () => {
             </button>
           </div>
 
-          {/* Statistics Cards */}
+          {/* Statistics Cards - Only in Report Generation View */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             {statistics.map((stat) => {
               const IconComponent = stat.icon;

@@ -15,7 +15,7 @@ import WasteCollectionPerformance from './pages/admin/WasteCollectionPerformance
 import RecyclingTrends from './pages/admin/RecyclingTrends';
 import FinancialSummary from './pages/admin/FinancialSummary';
 import EnvironmentalImpact from './pages/admin/EnvironmentalImpact';
-
+import SpecialPickupManagement from './pages/admin/SpecialPickupManagement';
 /**
  * Layout wrapper component that conditionally renders Header and Footer
  */
@@ -85,7 +85,7 @@ function App() {
                             }
                         />
 
-                        {/* ✅ Admin - Analytics Page (separate route for analytics dashboard) */}
+                        {/*  Admin - Analytics Page (separate route for analytics dashboard) */}
                         <Route
                             path="/admin/analytics"
                             element={
@@ -104,6 +104,15 @@ function App() {
                                 </ProtectedRoute>
                             }
                         />
+                        <Route
+                             path="/admin/pickups"
+                             element={
+                             <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
+                                   <SpecialPickupManagement />
+                                </ProtectedRoute>
+                            }
+                        />
+
 
                         {/* Admin - Analytics Sub Dashboards */}
                         <Route
