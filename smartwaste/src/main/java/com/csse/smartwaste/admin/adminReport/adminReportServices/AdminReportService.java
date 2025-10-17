@@ -7,6 +7,10 @@ import com.csse.smartwaste.admin.adminReport.adminReportDto.ReportRequestDto;
 import com.csse.smartwaste.admin.adminReport.adminReportDto.ReportSummaryDto;
 import com.csse.smartwaste.admin.adminReport.reportEntity.Report;
 
+/**
+ * AdminReportService ISP & DIP: High-level interface defining report operations
+ * only. SRP: Focused purely on business rules, not infrastructure.
+ */
 public interface AdminReportService {
 
     ReportSummaryDto generateReport(ReportRequestDto request);
@@ -14,4 +18,6 @@ public interface AdminReportService {
     List<Report> getAllReports();
 
     Optional<Report> getReportById(String id);
+
+    boolean deleteReport(String id);
 }

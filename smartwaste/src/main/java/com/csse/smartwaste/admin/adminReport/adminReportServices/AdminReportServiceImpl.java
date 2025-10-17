@@ -76,4 +76,14 @@ public class AdminReportServiceImpl implements AdminReportService {
     public Optional<Report> getReportById(String id) {
         return reportRepository.findById(id);
     }
+
+    @Override
+    public boolean deleteReport(String id) {
+        if (reportRepository.existsById(id)) {
+            reportRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+
 }
