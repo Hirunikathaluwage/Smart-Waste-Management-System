@@ -1,36 +1,61 @@
 /**
- * DashboardCard - Reusable card component
- * Follows Single Responsibility Principle - only displays a card
- * Follows Open/Closed Principle - can be extended via props
+ * DashboardCard Component
+ *
+ * SOLID Principles:
+ * - Single Responsibility: Displays a clickable dashboard card
+ * - Interface Segregation: Only receives props it needs
+ *
+ * Avoiding Code Smells:
+ * - Long Method: Extracted hover handlers to inline functions
+ * - Feature Envy: Component manages its own hover state
+ *
+ * Props:
+ * @param {Object} dashboard - Dashboard configuration object
+ * @param {Function} onNavigate - Navigation handler function
  */
-const DashboardCard = ({ title, description, icon, color, onClick, value, trend }) => (
-  <div 
-    className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1 group"
-    onClick={onClick}
-  >
-    <div className="flex items-center justify-between mb-4">
-      <div className={`${color} w-14 h-14 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300`}>
-        {icon}
+
+import { ArrowRight } from "lucide-react";
+
+const DashboardCard = ({ dashboard, onNavigate }) => {
+  const IconComponent = dashboard.icon;
+
+  const handleMouseEnter = (e) => {
+    e.currentTarget.style.borderColor = dashboard.color;
+  };
+
+  const handleMouseLeave = (e) => {
+    e.currentTarget.style.borderColor = "transparent";
+  };
+
+  const handleClick = () => {
+    onNavigate(dashboard.path);
+  };
+
+  return (
+    <div
+      onClick={handleClick}
+      className="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-xl transition-all duration-200 border-2 border-transparent group"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div className="flex items-start justify-between mb-4">
+        <div
+          className="w-12 h-12 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110"
+          style={{ backgroundColor: `${dashboard.color}15` }}
+        >
+          <IconComponent
+            className="w-6 h-6"
+            style={{ color: dashboard.color }}
+          />
+        </div>
+        <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-all group-hover:translate-x-1" />
       </div>
-      {trend && (
-        <span className={`text-sm font-medium px-2 py-1 rounded-full ${
-          trend.startsWith('+') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-        }`}>
-          {trend}
-        </span>
-      )}
+      <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-opacity-80">
+        {dashboard.title}
+      </h3>
+      <p className="text-sm text-gray-600">{dashboard.description}</p>
     </div>
-    <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-emerald-600 transition-colors">
-      {title}
-    </h3>
-    <p className="text-gray-600 text-sm mb-3">{description}</p>
-    {value && (
-      <div className="text-2xl font-bold text-gray-900">
-        {value}
-      </div>
-    )}
-  </div>
-);
+  );
+};
 
 export default DashboardCard;
-
